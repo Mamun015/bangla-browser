@@ -25,7 +25,7 @@ curl -o sdk/r8.jar https://maven.google.com/com/android/tools/r8/8.3.37/r8-8.3.3
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 bash build.sh
 ```
 
-Output: `BanglaBrowser-1.0.apk`.
+Output: `BanglaBrowser-1.1.01.apk`.
 
 `build.sh` creates `keystore.jks` on the first run. Keep that file. Every future version must be signed with the same key, otherwise Android refuses to install the update over the old app.
 
@@ -36,7 +36,7 @@ AndroidManifest.xml                     app identity: name, icon, permissions
 assets/home.html                        start page shown when the app opens
 src/bd/bangla/browser/MainActivity.java  the app: UI, WebView, bookmarks, history
 res/mipmap-*/ic_launcher.png            launcher icon in five densities
-tools/gen_icon.py                       draws the icon icons from scratch (stdlib only)
+tools/gen_icon.py                       draws the launcher icons from scratch (stdlib only)
 build.sh                                the build
 ```
 
