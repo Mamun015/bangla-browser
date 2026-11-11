@@ -46,3 +46,11 @@ build.sh                                the build
 - 1.1 tabs with a Chrome style switcher, Edge style bottom menu, settings screen (search engine, text size, JavaScript, images, clear data), session restore.
 - 1.0 first build: browser, bookmarks, history, dark mode, downloads, uploads.
 
+
+## Website
+
+The landing page lives in `docs/` and is published at
+<https://mamun0937.github.io/bangla-browser/> from the `gh-pages` branch.
+After editing anything in `docs/`, copy `index.html`, `icon.png`,
+`screenshot.png`, `robots.txt` and `sitemap.xml` to the root of `gh-pages`
+and push, then request a rebuild in the repository's Pages settings.
