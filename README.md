@@ -6,6 +6,8 @@ A small, fast Android browser with a full Bengali interface. WebView based, no a
 
 ![screenshot](docs/screenshot.png)
 
+**সরাসরি ডাউনলোড:** [BanglaBrowser-1.0.apk](https://github.com/mamun0937/bangla-browser/releases/latest) (৪৯ কিলোবাইট)
+
 ## ফিচার
 
 - বাংলা ইন্টারফেস, উপরের ঠিকানা বার, নিচে পাঁচটি বাটন
