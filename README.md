@@ -1,60 +1,98 @@
-# বাংলা ব্রাউজার (Bangla Browser)
+<div align="center">
 
-A small, fast Android browser with a full Bengali interface. WebView based, no ads, no tracking, under 50 KB.
+<img src="docs/icon.png" width="104" alt="Bangla Browser app icon">
 
-ছোট আর দ্রুত একটি অ্যান্ড্রয়েড ব্রাউজার, পুরোটাই বাংলায়। বিজ্ঞাপন নেই, ট্র্যাকিং নেই।
+# বাংলা ব্রাউজার · Bangla Browser
 
-![screenshot](docs/screenshot.png)
+**A fast, light Android browser with a full Bengali interface.**
+WebView based. No ads. No tracking. About 100 KB.
 
-**সরাসরি ডাউনলোড:** [BanglaBrowser-1.0.apk](https://github.com/mamun0937/bangla-browser/releases/latest) (৪৯ কিলোবাইট)
+[**⬇ Download APK**](https://github.com/mamun0937/bangla-browser/releases/latest) ·
+[Website](https://mamun0937.github.io/bangla-browser/) ·
+[Features](#features) ·
+[Install](#install) ·
+[Build](#build-from-source)
 
-## ফিচার
+![Android 5.0+](https://img.shields.io/badge/Android-5.0%2B-3ddc84?logo=android&logoColor=white)
+![Version](https://img.shields.io/badge/version-1.1.01-006a4e)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Size](https://img.shields.io/badge/APK-105%20KB-lightgrey)
 
-- বাংলা ইন্টারফেস, উপরের ঠিকানা বার, নিচে পাঁচটি বাটন
-- ঠিকানা লিখলে সাইট খোলে, বাংলা শব্দ লিখলে গুগলে সার্চ হয়
-- একসাথে ৮টা পর্যন্ত ট্যাব, Chrome-এর মতো ট্যাব সুইচার
-- Edge-স্টাইলের নিচের মেনু: নতুন ট্যাব, বুকমার্ক, ইতিহাস, ডাউনলোড, শেয়ার, ডেস্কটপ সাইট, রাতের মোড
-- সেটিংস: সার্চ ইঞ্জিন (Google, DuckDuckGo, Bing), লেখার আকার, জাভাস্ক্রিপ্ট, ছবি লোড
-- ডেটা মোছার সুবিধা: ইতিহাস, বুকমার্ক, কুকি ও ক্যাশে
-- ফাইল ডাউনলোড ও আপলোড (ফেসবুকে ছবি দেওয়া যায়)
-- কুকি সেভ থাকে, তাই সাইটে লগইন থাকে
-- হোম পেজ: প্রথম আলো, বিডিনিউজ, উইকিপিডিয়া, ইউটিউব, ফেসবুকের শর্টকাট
+</div>
+
+![Bangla Browser screenshots](docs/screenshot.png)
+
+বাংলা ভাষার জন্য বানানো একটি ছোট আর দ্রুত অ্যান্ড্রয়েড ব্রাউজার। পুরো ইন্টারফেস বাংলায়, বিজ্ঞাপন নেই, ট্র্যাকিং নেই। ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড — দৈনন্দিন ব্রাউজিংয়ের যা দরকার, সব একসাথে।
 
 ## Features
 
-- Bengali UI, address bar with search, five-button bottom nav
-- Up to 8 tabs with a Chrome style tab switcher
-- Edge style bottom menu: new tab, bookmarks, history, downloads, share, desktop site, dark mode
-- Settings: search engine (Google, DuckDuckGo, Bing), text size, JavaScript, images
-- Clear history, bookmarks, cookies and cache
-- Download manager and file upload support
-- Cookies persist, so logins stay
-- Bundled home page with popular Bengali sites
+| | |
+|---|---|
+| **বাংলা ইন্টারফেস** | Every button, menu and message is in Bengali. |
+| **Tabs** | Up to 8 tabs with a Chrome style switcher and a tab counter in the toolbar. |
+| **Edge style menu** | A bottom sheet with new tab, bookmarks, history, downloads, share, desktop site and dark mode. |
+| **Search built in** | Type a word to search Google, DuckDuckGo or Bing; type an address to open the site. |
+| **Bookmarks & history** | Saved locally on the device, with one-tap clear options. |
+| **Dark mode** | Full dark theme, including the built-in home page. |
+| **Downloads & uploads** | Android Download Manager for files, file picker for uploads. |
+| **Session restore** | Reopen the app and your tabs are still there. |
+| **Settings** | Search engine, text size, JavaScript, images, clear history, bookmarks, cookies and cache. |
 
-## ইনস্টল
+## Install
 
-1. [Releases](../../releases) থেকে `BanglaBrowser-1.0.apk` ডাউনলোড করো।
-2. ফাইল ম্যানেজার দিয়ে APK-তে ট্যাপ করো।
-3. "Allow from this source" চালু করো, তারপর Install।
+1. Download **[BanglaBrowser-1.1.01.apk](https://github.com/mamun0937/bangla-browser/releases/latest)**.
+2. Tap the file in your phone's Downloads folder.
+3. Allow installs from this source when Android asks, then tap **Install**.
 
-The APK is signed with a self-generated key, so Android will warn about an unknown source. That is expected for apps installed outside the Play Store.
+The APK is signed with a self-generated key, so Android shows the usual "unknown source" warning. Updates install over older versions and keep your bookmarks and history.
 
-## Build
+Requirements: Android 5.0 (API 21) or newer.
 
-No Gradle, no Android Studio. A shell script assembles, compiles, dexes, aligns and signs the APK. See [BUILD.md](BUILD.md).
+## Screenshots
+
+The image at the top shows the home page, the bottom menu, settings and the About dialog. Open [`docs/preview.html`](docs/preview.html) for the full-size mockup.
+
+## Build from source
+
+No Gradle and no Android Studio. A shell script compiles, dexes, aligns and signs the APK with the standard Android build tools.
+
+Requirements:
+
+- JDK 17
+- Android SDK build-tools (`aapt`, `zipalign`, `apksigner`)
+- `sdk/android.jar` (API 33) and `sdk/r8.jar` in the project folder
 
 ```bash
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 bash build.sh
 ```
 
-The whole thing builds on the phone itself: this project was written and compiled on an Android device.
+Output: `BanglaBrowser-1.1.01.apk`. See [BUILD.md](BUILD.md) for details. The signing key (`keystore.jks`) is not in the repository; generate your own to build a fork.
 
-## সীমাবদ্ধতা
+## Limitations
 
-- Google blocks sign-in inside WebView, so Gmail and YouTube logins open in Chrome instead.
+- Google blocks account sign-in inside WebView, so Gmail and YouTube logins open in Chrome instead.
 - DRM video (Netflix, Prime Video) does not play.
-- A few sites refuse to load in WebView.
+- A few sites refuse to load inside WebView.
+- The app is distributed as a direct APK, not through Google Play.
+
+## FAQ
+
+**Is it free?** Yes. MIT licensed, no ads, no in-app purchases.
+
+**Does it collect data?** No analytics or tracking. Bookmarks, history and settings stay on the device.
+
+**Will I lose my data when updating?** No. Install the new APK over the old one; bookmarks, history and settings are kept.
+
+**Why does Android warn about the installer?** The app is signed outside the Play Store. Tap "Install anyway" / allow the source once.
+
+**Can I use it on Android 5?** Yes, Android 5.0 and newer.
 
 ## License
 
-MIT. Do whatever you want with it.
+[MIT](LICENSE). Use it, change it, share it.
+
+<div align="center">
+
+**Made in Bangladesh** 🇧🇩
+
+</div>

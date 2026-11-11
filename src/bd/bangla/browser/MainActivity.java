@@ -68,7 +68,6 @@ public class MainActivity extends Activity {
     private String uaMobile;
     private int cBg, cSurface, cText, cMuted, cAccent, cLine;
     private long lastBackPress = 0;
-    private boolean reloadOnResume = false;
 
     private ValueCallback<Uri[]> filePathCallback;
     private static final int REQ_FILE = 4201;
@@ -119,6 +118,7 @@ public class MainActivity extends Activity {
                 if (u == null || u.length() == 0 || u.equals("about:blank") || u.startsWith("data:")) {
                     u = HOME_URL;
                 }
+                if (u.startsWith(HOME_URL)) u = HOME_URL;
                 o.put("u", u);
                 arr.put(o);
             } catch (Exception ignored) { }
@@ -131,13 +131,14 @@ public class MainActivity extends Activity {
         try {
             JSONArray arr = new JSONArray(prefs.getString("session", "[]"));
             if (arr.length() == 0) {
-                newTab(HOME_URL, true);
+                newTab(homeUrl(), true);
                 return;
             }
             int count = Math.min(arr.length(), MAX_TABS);
             for (int i = 0; i < count; i++) {
                 String u = arr.getJSONObject(i).getString("u");
                 if (u.length() == 0 || u.equals("about:blank") || u.startsWith("data:")) u = HOME_URL;
+                if (u.startsWith(HOME_URL)) u = homeUrl();
                 Tab t = new Tab();
                 t.url = u;
                 t.web = buildWebView();
@@ -145,12 +146,11 @@ public class MainActivity extends Activity {
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 t.web.setVisibility(View.GONE);
                 tabs.add(t);
-                t.web.loadUrl(u);
             }
             int idx = prefs.getInt("session_index", 0);
             selectTab(Math.max(0, Math.min(idx, tabs.size() - 1)));
         } catch (Exception e) {
-            newTab(HOME_URL, true);
+            newTab(homeUrl(), true);
         }
     }
 
@@ -404,7 +404,12 @@ public class MainActivity extends Activity {
             public void run() { if (current != null && current.canGoForward()) current.goForward(); }
         });
         navItem("⌂", "হোম", new Runnable() {
-            public void run() { if (current != null) current.loadUrl(HOME_URL); }
+            public void run() {
+                if (current == null) return;
+                urlBar.setText("");
+                pageTitle.setText("");
+                current.loadUrl(homeUrl());
+            }
         });
         btnStar = navItem("☆", "বুকমার্ক", new Runnable() {
             public void run() { toggleBookmark(); }
@@ -491,8 +496,11 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         t.web.setVisibility(View.GONE);
         tabs.add(t);
-        if (activate) selectTab(tabs.size() - 1);
-        t.web.loadUrl(url);
+        if (activate) {
+            selectTab(tabs.size() - 1);
+        } else {
+            t.web.loadUrl(url);
+        }
         updateTabBadge();
     }
 
@@ -504,6 +512,9 @@ public class MainActivity extends Activity {
         }
         Tab t = tabs.get(index);
         current = t.web;
+        if (t.web.getUrl() == null && t.url != null && t.url.length() > 0) {
+            t.web.loadUrl(t.url);
+        }
         if (t.url != null && t.url.startsWith("file:")) {
             urlBar.setText("");
             urlBar.setHint("সার্চ করুন বা ঠিকানা লিখুন");
@@ -523,7 +534,7 @@ public class MainActivity extends Activity {
         t.web.destroy();
         tabs.remove(index);
         if (tabs.isEmpty()) {
-            newTab(HOME_URL, true);
+            newTab(homeUrl(), true);
             return;
         }
         if (activeIndex >= index) activeIndex = Math.max(0, activeIndex - 1);
@@ -561,7 +572,7 @@ public class MainActivity extends Activity {
         add.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 closeOverlay();
-                newTab(HOME_URL, true);
+                newTab(homeUrl(), true);
             }
         });
         header.addView(add);
@@ -602,7 +613,12 @@ public class MainActivity extends Activity {
             text.setOrientation(LinearLayout.VERTICAL);
 
             TextView name = new TextView(this);
-            name.setText(t.title.length() == 0 ? "নতুন ট্যাব" : t.title);
+            String label = t.title;
+            if (label == null || label.length() == 0) {
+                label = t.url == null ? "নতুন ট্যাব" : prettyUrl(t.url);
+                if (label.startsWith("file:")) label = "হোম";
+            }
+            name.setText(label);
             name.setTextSize(14);
             name.setTextColor(cText);
             name.setSingleLine(true);
@@ -685,16 +701,16 @@ public class MainActivity extends Activity {
         LinearLayout list = new LinearLayout(this);
         list.setOrientation(LinearLayout.VERTICAL);
 
-        list.addView(menuRow("+", "নতুন ট্যাব", null, new Runnable() {
-            public void run() { newTab(HOME_URL, true); }
+        list.addView(menuRow("➕", "নতুন ট্যাব", null, new Runnable() {
+            public void run() { newTab(homeUrl(), true); }
         }));
-        list.addView(menuRow("★", "বুকমার্ক", String.valueOf(loadList("bookmarks").size()), new Runnable() {
+        list.addView(menuRow("⭐", "বুকমার্ক", String.valueOf(loadList("bookmarks").size()), new Runnable() {
             public void run() { showList("বুকমার্ক", "bookmarks", true); }
         }));
         list.addView(menuRow("🕘", "ইতিহাস", null, new Runnable() {
             public void run() { showList("ইতিহাস", "history", true); }
         }));
-        list.addView(menuRow("⬇", "ডাউনলোড", null, new Runnable() {
+        list.addView(menuRow("⬇️", "ডাউনলোড", null, new Runnable() {
             public void run() {
                 try {
                     startActivity(new Intent(android.app.DownloadManager.ACTION_VIEW_DOWNLOADS));
@@ -703,7 +719,7 @@ public class MainActivity extends Activity {
                 }
             }
         }));
-        list.addView(menuRow("⤴", "শেয়ার", null, new Runnable() {
+        list.addView(menuRow("📤", "শেয়ার", null, new Runnable() {
             public void run() {
                 if (current == null) return;
                 Intent i = new Intent(Intent.ACTION_SEND);
@@ -715,7 +731,7 @@ public class MainActivity extends Activity {
 
         list.addView(sectionLabel("পেজ"));
 
-        list.addView(toggleRow(desktopMode ? "🖥" : "📱",
+        list.addView(toggleRow(desktopMode ? "🖥️" : "📱",
                 "ডেস্কটপ সাইট", desktopMode, new Runnable() {
                     public void run() {
                         desktopMode = !desktopMode;
@@ -726,28 +742,41 @@ public class MainActivity extends Activity {
                     }
                 }));
 
-        list.addView(toggleRow(darkMode ? "☾" : "☀", "রাতের মোড", darkMode, new Runnable() {
+        list.addView(toggleRow(darkMode ? "🌙" : "☀️", "রাতের মোড", darkMode, new Runnable() {
             public void run() {
                 darkMode = !darkMode;
                 prefs.edit().putBoolean("dark", darkMode).apply();
-                reloadOnResume = true;
                 recreate();
             }
         }));
 
         list.addView(sectionLabel("অ্যাপ"));
 
-        list.addView(menuRow("⚙", "সেটিংস", null, new Runnable() {
+        list.addView(menuRow("⚙️", "সেটিংস", null, new Runnable() {
             public void run() {
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             }
         }));
-        list.addView(menuRow("ℹ", "অ্যাপ সম্পর্কে", "১.১", new Runnable() {
+        list.addView(menuRow("ℹ️", "অ্যাপ সম্পর্কে", "১.১.০১", new Runnable() {
             public void run() { about(); }
         }));
 
         scroll.addView(list);
         sheet.addView(scroll);
+
+        // keep the sheet from growing past ~72% of the screen so it always fits
+        final ScrollView menuScroll = scroll;
+        final LinearLayout menuList = list;
+        scroll.post(new Runnable() {
+            public void run() {
+                int max = (int) (getResources().getDisplayMetrics().heightPixels * 0.72f);
+                if (menuList.getHeight() > max) {
+                    ViewGroup.LayoutParams lp = menuScroll.getLayoutParams();
+                    lp.height = max;
+                    menuScroll.setLayoutParams(lp);
+                }
+            }
+        });
 
         FrameLayout.LayoutParams slp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -774,21 +803,30 @@ public class MainActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(dp(14), dp(12), dp(14), dp(12));
-        row.setBackground(rounded(cBg, 12));
+        row.setPadding(dp(10), dp(8), dp(12), dp(8));
+        if (action != null) {
+            TypedValue tv = new TypedValue();
+            getTheme().resolveAttribute(android.R.attr.selectableItemBackground, tv, true);
+            if (tv.resourceId != 0) row.setBackgroundResource(tv.resourceId);
+        }
 
+        LinearLayout tile = new LinearLayout(this);
+        tile.setGravity(Gravity.CENTER);
+        tile.setBackground(rounded(cSurface, 11));
         TextView ico = new TextView(this);
         ico.setText(icon);
-        ico.setTextSize(16);
+        ico.setTextSize(18);
         ico.setGravity(Gravity.CENTER);
         ico.setTextColor(cText);
-        row.addView(ico, new LinearLayout.LayoutParams(dp(30),
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        tile.addView(ico, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        row.addView(tile, new LinearLayout.LayoutParams(dp(36), dp(36)));
 
         TextView name = new TextView(this);
         name.setText(label);
         name.setTextSize(15);
         name.setTextColor(cText);
+        name.setPadding(dp(14), 0, 0, 0);
         row.addView(name, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
@@ -800,12 +838,14 @@ public class MainActivity extends Activity {
             row.addView(val);
         }
 
-        row.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                closeOverlay();
-                v.post(action);
-            }
-        });
+        if (action != null) {
+            row.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    closeOverlay();
+                    action.run();
+                }
+            });
+        }
         return row;
     }
 
@@ -877,7 +917,12 @@ public class MainActivity extends Activity {
                 Tab t = tabOf(view);
                 if (t != null) t.url = url;
                 progress.setVisibility(View.VISIBLE);
-                if (view == current && isRealPage(url)) urlBar.setText(prettyUrl(url));
+                if (url != null && url.startsWith(HOME_URL)) {
+                    urlBar.setText("");
+                    pageTitle.setText("");
+                } else if (view == current && isRealPage(url)) {
+                    urlBar.setText(prettyUrl(url));
+                }
             }
 
             @Override
@@ -889,11 +934,23 @@ public class MainActivity extends Activity {
                 }
                 progress.setVisibility(View.GONE);
                 if (view == current) updateNavButtons();
-                if (url != null && url.startsWith(HOME_URL)) injectRecent();
+                if (isRealPage(url)) addHistory(t == null ? null : t.title, url);
+                if (url != null && url.startsWith(HOME_URL)) injectRecent(view);
             }
 
             @Override
             public void onReceivedError(WebView view, int code, String desc, String failingUrl) {
+                if (Build.VERSION.SDK_INT >= 23) return;
+                if (!isRealPage(failingUrl) || view != current) return;
+                progress.setVisibility(View.GONE);
+                showErrorPage(view, failingUrl);
+            }
+
+            @Override
+            public void onReceivedError(WebView view, android.webkit.WebResourceRequest request,
+                                        android.webkit.WebResourceError error) {
+                if (request == null || !request.isForMainFrame()) return;
+                String failingUrl = request.getUrl() == null ? null : request.getUrl().toString();
                 if (!isRealPage(failingUrl) || view != current) return;
                 progress.setVisibility(View.GONE);
                 showErrorPage(view, failingUrl);
@@ -1007,6 +1064,10 @@ public class MainActivity extends Activity {
         else if (u.startsWith("http://")) u = u.substring(7);
         if (u.endsWith("/")) u = u.substring(0, u.length() - 1);
         return u;
+    }
+
+    private String homeUrl() {
+        return darkMode ? HOME_URL + "#dark" : HOME_URL;
     }
 
     private boolean handleUrl(WebView view, String url) {
@@ -1160,8 +1221,8 @@ public class MainActivity extends Activity {
         toast("বুকমার্কে রাখা হয়েছে");
     }
 
-    private void injectRecent() {
-        if (current == null) return;
+    private void injectRecent(WebView view) {
+        if (view == null) return;
         JSONArray arr = new JSONArray();
         List<String[]> h = loadList("history");
         for (int i = 0; i < h.size() && i < 4; i++) {
@@ -1172,7 +1233,7 @@ public class MainActivity extends Activity {
                 arr.put(o);
             } catch (Exception ignored) { }
         }
-        current.evaluateJavascript("window.setRecent && window.setRecent(" + arr.toString() + ");", null);
+        view.evaluateJavascript("window.setRecent && window.setRecent(" + arr.toString() + ");", null);
     }
 
     // ---------------------------------------------------------------- dialogs
@@ -1205,10 +1266,13 @@ public class MainActivity extends Activity {
     }
 
     private void about() {
-        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.১\n\n"
-                + "সহজ, দ্রুত আর বাংলা ভাষার ব্রাউজার।\n"
-                + "ট্যাব, বুকমার্ক, ইতিহাস, সেটিংস সব একসাথে।\n\n"
-                + "github.com/mamun0937/bangla-browser";
+        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.১.০১\n\n"
+                + "সহজ, দ্রুত ও সম্পূর্ণ বাংলা ব্রাউজার।\n"
+                + "ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড — সব একসাথে।\n\n"
+                + "নির্মাতা\n"
+                + "মামুন\n"
+                + "গিটহাব: github.com/mamun0937\n\n"
+                + "Made in Bangladesh";
         dialog().setTitle("অ্যাপ সম্পর্কে")
                 .setMessage(msg)
                 .setPositiveButton("ঠিক আছে", null)

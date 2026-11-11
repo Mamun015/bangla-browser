@@ -87,6 +87,17 @@ public class SettingsActivity extends Activity {
         if (tv.resourceId != 0) v.setBackgroundResource(tv.resourceId);
     }
 
+    private void rowBg(View v, boolean pressable) {
+        GradientDrawable base = rounded(cSurface, 12);
+        if (pressable) {
+            int tint = darkMode ? 0x332BBD8F : 0x22006A4E;
+            v.setBackground(new android.graphics.drawable.RippleDrawable(
+                    android.content.res.ColorStateList.valueOf(tint), base, base));
+        } else {
+            v.setBackground(base);
+        }
+    }
+
     private void build() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -153,7 +164,7 @@ public class SettingsActivity extends Activity {
         }));
 
         list.addView(section("অ্যাপ"));
-        list.addView(row("ℹ", "সংস্করণ", "১.১", null));
+        list.addView(row("ℹ", "সংস্করণ", "১.১.০১", null));
         list.addView(row("🔗", "সোর্স কোড", "GitHub", new Runnable() {
             public void run() {
                 try {
@@ -186,8 +197,7 @@ public class SettingsActivity extends Activity {
         box.setOrientation(LinearLayout.HORIZONTAL);
         box.setGravity(Gravity.CENTER_VERTICAL);
         box.setPadding(dp(14), dp(13), dp(14), dp(13));
-        if (action != null) ripple(box);
-        box.setBackgroundColor(cSurface);
+        rowBg(box, action != null);
 
         TextView ico = new TextView(this);
         ico.setText(icon);
@@ -230,7 +240,7 @@ public class SettingsActivity extends Activity {
         box.setOrientation(LinearLayout.HORIZONTAL);
         box.setGravity(Gravity.CENTER_VERTICAL);
         box.setPadding(dp(14), dp(9), dp(14), dp(9));
-        box.setBackgroundColor(cSurface);
+        rowBg(box, true);
 
         TextView ico = new TextView(this);
         ico.setText(icon);

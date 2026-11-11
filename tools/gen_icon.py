@@ -2,11 +2,16 @@
 """Generate the launcher icon PNGs (pure stdlib). Render once large, then downscale."""
 import math, os, struct, zlib
 
-GREEN = (0, 106, 78)
-GREEN_DARK = (0, 74, 54)
+TEAL = (0, 196, 140)        # bright top-left
+GREEN = (0, 106, 78)        # brand green
+GREEN_DARK = (0, 58, 42)    # deep bottom-right
 WHITE = (255, 255, 255)
 RED = (244, 42, 65)
 HIGH = 768
+
+
+def lerp(a, b, t):
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
 
 def render_high(n=HIGH):
@@ -16,19 +21,27 @@ def render_high(n=HIGH):
     corner = n - r
 
     for y in range(n):
-        t = y / float(n)
-        col = tuple(int(GREEN_DARK[i] * t + GREEN[i] * (1 - t)) for i in range(3))
         dy = max(r - y, y - corner, 0)
         row = px[y]
         for x in range(n):
             dx = max(r - x, x - corner, 0)
-            if dx * dx + dy * dy <= r * r:
-                row[x] = col + (255,)
+            if dx * dx + dy * dy > r * r:
+                continue
+            # diagonal gradient: teal top-left -> green -> deep green bottom-right
+            t = ((x / n) * 0.55 + (y / n) * 0.45)
+            if t < 0.5:
+                col = lerp(TEAL, GREEN, t / 0.5)
+            else:
+                col = lerp(GREEN, GREEN_DARK, (t - 0.5) / 0.5)
+            # soft light from the top-left corner
+            gl = max(0.0, 1.0 - math.hypot(x, y) / (n * 1.15))
+            col = tuple(min(255, int(c + 38 * gl)) for c in col)
+            row[x] = col + (255,)
 
-    R = n * 0.30
-    w = n * 0.024          # stroke half-width
-    a_mer = R * 0.44
-    b_par = R * 0.58
+    R = n * 0.345
+    w = n * 0.026          # stroke half-width
+    a_mer = R * 0.46
+    b_par = R * 0.60
 
     def ell_dist(dx, dy, a, b):
         f2 = (dx / a) ** 2 + (dy / b) ** 2
@@ -56,24 +69,8 @@ def render_high(n=HIGH):
                 row[x] = WHITE + (255,)
 
     # red dot inside the globe, upper right
-    dotr = n * 0.070
-    ox, oy = cx + R * 0.36, cy - R * 0.36
-
-    # soft edge: average neighbours on the ring (cheap AA)
-    for y in range(1, n - 1):
-        row = px[y]
-        for x in range(1, n - 1):
-            p = row[x]
-            if p[3] and p[0] < 40:
-                continue
-            if p[3] == 0:
-                continue
-            # near white? blend with bg only if adjacent has different coverage
-            pass
-
-    # red dot inside the globe, upper right
-    dotr = n * 0.072
-    ox, oy = cx + R * 0.50, cy - R * 0.50
+    dotr = n * 0.082
+    ox, oy = cx + R * 0.42, cy - R * 0.42
     for y in range(n):
         dy = y - oy
         if abs(dy) > dotr:

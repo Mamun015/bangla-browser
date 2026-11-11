@@ -42,5 +42,7 @@ build.sh                                the build
 
 ## Changelog
 
+- 1.1.01 fix blank menu actions (settings and about now open), About page with maker details and "Made in Bangladesh", bigger colorful launcher icon, nicer menu icons, lazy tab loading, sheet height cap, main-frame only error page.
 - 1.1 tabs with a Chrome style switcher, Edge style bottom menu, settings screen (search engine, text size, JavaScript, images, clear data), session restore.
 - 1.0 first build: browser, bookmarks, history, dark mode, downloads, uploads.
+

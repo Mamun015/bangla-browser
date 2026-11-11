@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>বাংলা ব্রাউজার (Bangla Browser) — Free Bengali Browser for Android</title>
+<meta name="description" content="Download বাংলা ব্রাউজার, a free, fast and light Android browser with a full Bengali interface. Tabs, bookmarks, history, dark mode. No ads, no tracking. APK 105 KB, MIT license.">
+<meta name="keywords" content="Bangla Browser, বাংলা ব্রাউজার, Bengali browser, Bengali browser for Android, Android browser, Bangla APK, বাংলা অ্যাপ, ব্রাউজার, WebView browser, Bengali app download">
+<meta name="author" content="Mamun">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#006a4e">
+<link rel="canonical" href="https://mamun0937.github.io/bangla-browser/">
+<link rel="icon" href="icon.png" type="image/png">
+<link rel="apple-touch-icon" href="icon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Bangla Browser">
+<meta property="og:title" content="বাংলা ব্রাউজার — Bangla Browser for Android">
+<meta property="og:description" content="A free, fast Android browser with a full Bengali interface. Tabs, bookmarks, dark mode. No ads, no tracking. Download the 105 KB APK.">
+<meta property="og:url" content="https://mamun0937.github.io/bangla-browser/">
+<meta property="og:image" content="https://mamun0937.github.io/bangla-browser/screenshot.png">
+<meta property="og:locale" content="bn_BD">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="বাংলা ব্রাউজার — Bangla Browser for Android">
+<meta name="twitter:description" content="A free, fast Android browser with a full Bengali interface. No ads, no tracking.">
+<meta name="twitter:image" content="https://mamun0937.github.io/bangla-browser/screenshot.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Bangla Browser",
+  "alternateName": "বাংলা ব্রাউজার",
+  "url": "https://mamun0937.github.io/bangla-browser/",
+  "downloadUrl": "https://github.com/mamun0937/bangla-browser/releases/latest",
+  "codeRepository": "https://github.com/mamun0937/bangla-browser",
+  "applicationCategory": "BrowserApplication",
+  "applicationSubCategory": "Web Browser",
+  "operatingSystem": "Android 5.0 and newer",
+  "softwareVersion": "1.1.01",
+  "fileSize": "105KB",
+  "inLanguage": "bn",
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BDT" },
+  "author": { "@type": "Person", "name": "Mamun", "url": "https://github.com/mamun0937" },
+  "screenshot": "https://mamun0937.github.io/bangla-browser/screenshot.png",
+  "featureList": [
+    "Full Bengali interface",
+    "Up to 8 tabs with a tab switcher",
+    "Bookmarks and history",
+    "Dark mode",
+    "Downloads and file uploads",
+    "Session restore"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "বাংলা ব্রাউজার কি ফ্রি?",
+      "acceptedAnswer": { "@type": "Answer", "text": "হ্যাঁ। অ্যাপটি MIT লাইসেন্সে প্রকাশিত, বিজ্ঞাপন নেই, ট্র্যাকিং নেই, কোনো ইন-অ্যাপ কেনাকাটাও নেই।" }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Bangla Browser free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is MIT licensed with no ads, no tracking and no in-app purchases." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Bangla Browser collect personal data?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. There is no analytics or tracking. Bookmarks, history and settings stay on the device." }
+    },
+    {
+      "@type": "Question",
+      "name": "Which Android versions are supported?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Android 5.0 (API 21) and newer." }
+    }
+  ]
+}
+</script>
+
+<style>
+  :root {
+    --green: #006a4e;
+    --green-dark: #004d38;
+    --red: #f42a41;
+    --ink: #101815;
+    --muted: #5d6b64;
+    --bg: #f6f8f7;
+    --card: #ffffff;
+    --line: #e2e9e5;
+    --radius: 18px;
+    --shadow: 0 18px 40px rgba(16, 24, 21, .10);
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Bengali", "Hind Siliguri", Roboto, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 17px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--green); }
+  img { max-width: 100%; display: block; }
+  .wrap { width: min(1080px, 100% - 40px); margin: 0 auto; }
+
+  header.nav {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(246, 248, 247, .92); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-in { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+  .nav-in img { width: 36px; height: 36px; border-radius: 10px; }
+  .nav-in .name { font-weight: 700; font-size: 16px; letter-spacing: .1px; }
+  .nav-in .spacer { flex: 1; }
+  .nav-in a.link { text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 12px; border-radius: 10px; }
+  .nav-in a.link:hover { background: #eaf1ee; }
+  @media (max-width: 620px) { .nav-in a.link.hide-sm { display: none; } }
+
+  .hero { padding: 52px 0 8px; }
+  .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 44px; align-items: center; }
+  @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; gap: 28px; } }
+
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+    color: var(--green); background: #e7f2ee; border-radius: 999px; padding: 6px 12px;
+  }
+  h1 { font-size: clamp(34px, 6vw, 54px); line-height: 1.12; margin: 16px 0 10px; letter-spacing: -.5px; }
+  h1 span { color: var(--green); }
+  .lede { font-size: clamp(16px, 2.2vw, 19px); color: var(--muted); max-width: 34em; margin: 0 0 26px; }
+  .lede b { color: var(--ink); font-weight: 700; }
+
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    text-decoration: none; font-weight: 700; font-size: 16px;
+    padding: 15px 24px; border-radius: 14px; border: 1px solid transparent;
+    transition: transform .12s ease, background .15s ease;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn.primary { background: var(--green); color: #fff; box-shadow: 0 10px 24px rgba(0, 106, 78, .25); }
+  .btn.primary:hover { background: var(--green-dark); }
+  .btn.ghost { background: var(--card); color: var(--ink); border-color: var(--line); }
+  .btn.ghost:hover { background: #eef4f1; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .chip { font-size: 12.5px; font-weight: 600; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; }
+
+  .phone-wrap { display: flex; justify-content: center; }
+  .appicon {
+    width: 260px; height: 260px; border-radius: 58px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, .35);
+    transform: rotate(-3deg);
+  }
+  .appicon img { width: 100%; height: 100%; border-radius: 58px; }
+  @media (max-width: 860px) { .appicon { width: 190px; height: 190px; border-radius: 42px; } .appicon img { border-radius: 42px; } }
+
+  section { padding: 56px 0; }
+  section.alt { background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  h2 { font-size: clamp(24px, 3.4vw, 32px); margin: 0 0 8px; letter-spacing: -.3px; }
+  .sub { color: var(--muted); margin: 0 0 28px; max-width: 46em; }
+
+  .shot { margin: 0; border-radius: var(--radius); overflow-x: auto; overflow-y: hidden; background: #0b0d0c; box-shadow: var(--shadow); -webkit-overflow-scrolling: touch; }
+  .shot img { width: 100%; }
+  @media (max-width: 760px) { .shot img { width: 860px; max-width: none; } }
+  .cap { font-size: 13px; color: var(--muted); margin-top: 12px; text-align: center; }
+
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 860px) { .features { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .features { grid-template-columns: 1fr; } }
+  .feature { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+  .feature .ico { font-size: 22px; line-height: 1; display: inline-flex; width: 42px; height: 42px; align-items: center; justify-content: center; background: #eaf3ef; border-radius: 12px; margin-bottom: 12px; }
+  .feature h3 { margin: 0 0 6px; font-size: 16.5px; }
+  .feature p { margin: 0; font-size: 14.5px; color: var(--muted); }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; counter-reset: step; }
+  @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+  .step { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; position: relative; }
+  .step:before {
+    counter-increment: step; content: counter(step);
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--green); color: #fff; font-size: 14px; font-weight: 700; margin-bottom: 10px;
+  }
+  .step h3 { margin: 0 0 6px; font-size: 16px; }
+  .step p { margin: 0; font-size: 14.5px; color: var(--muted); }
+  .note { margin-top: 18px; font-size: 14px; color: var(--muted); background: #fff7e6; border: 1px solid #f3e2b8; padding: 12px 14px; border-radius: 12px; }
+
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 10px; }
+  details summary { cursor: pointer; font-weight: 700; font-size: 15.5px; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary:after { content: "+"; float: right; color: var(--green); font-weight: 700; }
+  details[open] summary:after { content: "−"; }
+  details p { margin: 10px 0 0; font-size: 14.5px; color: var(--muted); }
+
+  footer { padding: 36px 0 44px; }
+  .foot-in { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 22px; }
+  .foot-in p { margin: 0; font-size: 13.5px; color: var(--muted); }
+  .foot-links { display: flex; gap: 16px; font-size: 13.5px; }
+  .foot-links a { text-decoration: none; font-weight: 600; }
+  .made { color: var(--green); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <img src="icon.png" alt="Bangla Browser icon">
+    <span class="name">বাংলা ব্রাউজার</span>
+    <span class="spacer"></span>
+    <a class="link hide-sm" href="#features">ফিচার</a>
+    <a class="link hide-sm" href="#install">ইনস্টল</a>
+    <a class="link hide-sm" href="#faq">প্রশ্ন</a>
+    <a class="link" href="https://github.com/mamun0937/bangla-browser">GitHub</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div class="hero-grid">
+      <div>
+        <span class="kicker">Free · Open source · No ads</span>
+        <h1>বাংলা ব্রাউজার<br><span>দ্রুত, হালকা, পুরোটাই বাংলায়</span></h1>
+        <p class="lede">A free Android browser built for Bengali readers. Tabs, bookmarks, history, dark mode and a home page with your favourite Bangla sites. <b>About 100 KB, no ads, no tracking.</b></p>
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/mamun0937/bangla-browser/releases/latest">⬇ APK ডাউনলোড</a>
+          <a class="btn ghost" href="https://github.com/mamun0937/bangla-browser">সোর্স কোড</a>
+        </div>
+        <div class="chips">
+          <span class="chip">সংস্করণ ১.১.০১</span>
+          <span class="chip">Android 5.0+</span>
+          <span class="chip">১০৫ কিলোবাইট</span>
+          <span class="chip">MIT লাইসেন্স</span>
+        </div>
+      </div>
+      <div class="phone-wrap">
+        <div class="appicon"><img src="icon.png" alt="Bangla Browser app icon" width="260" height="260"></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="alt" id="screenshots">
+    <div class="wrap">
+      <h2>অ্যাপের ভেতরে</h2>
+      <p class="sub">হোম পেজ, Edge-স্টাইল মেনু, সেটিংস আর অ্যাপ সম্পর্কে — এক নজরে।</p>
+      <figure class="shot">
+        <img src="screenshot.png" alt="Bangla Browser screenshots: home page, bottom menu, settings and About dialog" loading="lazy" width="2960" height="1660">
+      </figure>
+      <p class="cap">বাংলা ব্রাউজার ১.১.০১ · Android · <span style="white-space:nowrap">ছোট স্ক্রিনে পাশে স্ক্রল করো</span></p>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>কী কী আছে</h2>
+      <p class="sub">দৈনন্দিন ব্রাউজিংয়ের জন্য যা দরকার, অপ্রয়োজনীয় কিছু ছাড়া।</p>
+      <div class="features">
+        <div class="feature"><span class="ico">🇧🇩</span><h3>সম্পূর্ণ বাংলা</h3><p>প্রতিটি বাটন, মেনু আর বার্তা বাংলায়। ইংরেজি জানা না থাকলেও চালানো যায়।</p></div>
+        <div class="feature"><span class="ico">🗂️</span><h3>৮টা পর্যন্ত ট্যাব</h3><p>Chrome-এর মতো ট্যাব সুইচার। উপরের সংখ্যায় চাপ দিলেই সব ট্যাবের তালিকা।</p></div>
+        <div class="feature"><span class="ico">⭐</span><h3>বুকমার্ক ও ইতিহাস</h3><p>পছন্দের পেজ সেভ থাকে ফোনেই। এক ট্যাপে পুরোনো ইতিহাসে ফেরা যায়।</p></div>
+        <div class="feature"><span class="ico">🌙</span><h3>রাতের মোড</h3><p>রাতে চোখের আরামের জন্য পুরো অ্যাপ আর হোম পেজ কালো হয়ে যায়।</p></div>
+        <div class="feature"><span class="ico">⚙️</span><h3>সেটিংস</h3><p>সার্চ ইঞ্জিন, লেখার আকার, জাভাস্ক্রিপ্ট, ছবি লোড — সব নিজের মতো সেট করা যায়।</p></div>
+        <div class="feature"><span class="ico">⬇️</span><h3>ডাউনলোড ও আপলোড</h3><p>ফাইল নামানো যায়, ফেসবুকে ছবি দেওয়ার মতো আপলোডও কাজ করে।</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt" id="install">
+    <div class="wrap">
+      <h2>ইনস্টল করবেন যেভাবে</h2>
+      <p class="sub">Play Store লাগবে না। ফোনে সরাসরি APK ইনস্টল করা যায়।</p>
+      <div class="steps">
+        <div class="step"><h3>APK নামাও</h3><p>উপরের ডাউনলোড বাটনে চাপ দিয়ে ফোনের Downloads ফোল্ডারে ফাইলটা রাখো।</p></div>
+        <div class="step"><h3>ফাইলে ট্যাপ করো</h3><p>ফাইল ম্যানেজার খুলে <b>BanglaBrowser-1.1.01.apk</b>-তে ট্যাপ করো।</p></div>
+        <div class="step"><h3>Install চাপো</h3><p>Android অচেনা সোর্সের অনুমতি চাইলে "Allow" দাও, তারপর Install।</p></div>
+      </div>
+      <p class="note">পুরোনো ভার্সন থাকলে মুছতে হবে না। নতুন APK পুরোনোটার উপর বসবে, বুকমার্ক আর ইতিহাস অটুট থাকবে।</p>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <h2>সাধারণ প্রশ্ন</h2>
+      <p class="sub">ইনস্টল আর ব্যবহার নিয়ে যা সবচেয়ে বেশি জিজ্ঞাসা করা হয়।</p>
+      <details open><summary>বাংলা ব্রাউজার কি ফ্রি?</summary><p>হ্যাঁ। MIT লাইসেন্সে প্রকাশিত। বিজ্ঞাপন নেই, ট্র্যাকিং নেই, ইন-অ্যাপ কেনাকাটাও নেই।</p></details>
+      <details><summary>ফোনে কোনো তথ্য পাঠায় কি?</summary><p>না। কোনো অ্যানালিটিক্স নেই। বুকমার্ক, ইতিহাস আর সেটিংস শুধু তোমার ফোনেই থাকে।</p></details>
+      <details><summary>কোন Android ভার্সনে চলবে?</summary><p>Android 5.0 (API 21) আর তার পরের সব ভার্সনে।</p></details>
+      <details><summary>গুগলে লগইন হয় না কেন?</summary><p>Google WebView-এর ভেতরে অ্যাকাউন্ট লগইন বন্ধ রেখেছে। জিমেইল বা ইউটিউব লগইনের জন্য Chrome-এ খুলে নিতে হবে।</p></details>
+      <details><summary>Netflix বা Prime Video চলে না কেন?</summary><p>DRM-সুরক্ষিত ভিডিও WebView-এ চলে না। সেসব দেখতে Chrome বা অফিসিয়াল অ্যাপ ব্যবহার করো।</p></details>
+      <details><summary>আপডেট করলে বুকমার্ক হারাবে?</summary><p>না। একই সাইনিং কী দিয়ে সাইন করা, তাই নতুন APK পুরোনো অ্যাপের উপর ইনস্টল হয় আর ডেটা থাকে।</p></details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <p>© ২০২৬ বাংলা ব্রাউজার · MIT লাইসেন্স · <span class="made">Made in Bangladesh</span></p>
+    <div class="foot-links">
+      <a href="https://github.com/mamun0937/bangla-browser">GitHub</a>
+      <a href="https://github.com/mamun0937/bangla-browser/releases">Releases</a>
+      <a href="https://github.com/mamun0937/bangla-browser/issues">Issues</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
