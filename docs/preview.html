@@ -6,15 +6,15 @@
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
-    margin: 0; padding: 26px; background: #0b0d0c;
-    background-image: radial-gradient(circle at 20% 0%, #14342a 0%, #0b0d0c 55%);
+    margin: 0; padding: 24px; background: #0b0d0c;
+    background-image: radial-gradient(circle at 15% 0%, #14342a 0%, #0b0d0c 55%);
     font-family: "Noto Sans Bengali", sans-serif;
-    display: flex; gap: 26px; justify-content: center; align-items: flex-start;
+    display: flex; gap: 22px; justify-content: center; align-items: flex-start;
   }
   .phone {
-    width: 372px; height: 792px; border-radius: 38px; overflow: hidden;
+    width: 340px; height: 724px; border-radius: 36px; overflow: hidden;
     position: relative; background: #fff; color: #111714;
-    box-shadow: 0 30px 60px rgba(0,0,0,.55), 0 0 0 9px #16191a, 0 0 0 10px #2a2f2d;
+    box-shadow: 0 26px 54px rgba(0,0,0,.55), 0 0 0 8px #16191a, 0 0 0 9px #2a2f2d;
     display: flex; flex-direction: column;
     --bg:#fff; --surface:#f1f5f3; --text:#111714; --muted:#68736d;
     --accent:#006a4e; --line:#e1e8e4; --red:#f42a41;
@@ -24,102 +24,102 @@
     --bg:#0f1211; --surface:#191e1c; --text:#e9efec; --muted:#8b9791;
     --accent:#2bbd8f; --line:#252c29;
   }
-  .status {
-    height: 34px; display:flex; align-items:center; justify-content:space-between;
-    padding: 0 20px; font-size: 11px; color: var(--text); opacity:.75; font-family: sans-serif;
+  .status { height: 30px; display:flex; align-items:center; justify-content:space-between;
+    padding: 0 18px; font-size: 10px; color: var(--text); opacity:.7; font-family: sans-serif; }
+  .topbar { padding: 0 10px 8px; background: var(--bg); }
+  .titlerow { display:flex; align-items:center; gap:6px; padding: 0 2px 8px; }
+  .brand { font-size: 12px; font-weight: 700; color: var(--accent); }
+  .ptitle { flex:1; font-size: 10px; color: var(--muted); text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tabs-badge {
+    width: 26px; height: 26px; border:1px solid var(--line); background: var(--surface);
+    border-radius: 7px; display:flex; align-items:center; justify-content:center;
+    font-size: 11px; font-weight: 700; color: var(--text);
   }
-  .topbar { padding: 0 12px 8px; background: var(--bg); }
-  .titlerow { display:flex; align-items:center; justify-content:space-between; padding: 0 2px 8px; }
-  .brand { font-size: 13px; font-weight: 700; color: var(--accent); }
-  .ptitle { font-size: 11px; color: var(--muted); max-width: 150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .dots { width: 26px; text-align:center; font-size: 17px; color: var(--text); }
   .pill {
     display:flex; align-items:center; gap:6px; background: var(--surface);
-    border:1px solid var(--line); border-radius: 24px; padding: 0 12px 0 14px;
+    border:1px solid var(--line); border-radius: 22px; padding: 0 10px 0 12px;
   }
-  .pill .lock { font-size: 11px; opacity:.7; }
-  .pill .url { flex:1; font-size: 13.5px; color: var(--muted); padding: 10px 0; }
-  .pill .rel { font-size: 18px; color: var(--muted); padding: 4px 0 4px 10px; }
-  .body { flex:1; overflow: hidden; background: var(--bg); padding: 20px 16px 0; color: var(--text); }
-  .head { display:flex; align-items:center; gap:12px; margin-bottom: 22px; }
-  .logo {
-    width:42px;height:42px;border-radius:14px;flex:none;
+  .pill .lock { font-size: 10px; opacity:.7; }
+  .pill .url { flex:1; font-size: 12px; color: var(--text); padding: 9px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pill .rel { font-size: 16px; color: var(--muted); padding: 4px 0 4px 8px; }
+  .body { flex:1; overflow: hidden; background: var(--bg); padding: 16px 14px 0; color: var(--text); }
+  .head { display:flex; align-items:center; gap:10px; margin-bottom: 18px; }
+  .logo { width:38px;height:38px;border-radius:12px;flex:none;
     background: linear-gradient(145deg, var(--accent), #00523c);
-    display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700;position:relative;
-  }
-  .logo i { position:absolute;right:9px;top:9px;width:8px;height:8px;border-radius:50%;background:var(--red);display:block; }
-  .head h1 { margin:0; font-size:17px; font-weight:700; }
-  .head p { margin:3px 0 0; font-size:12px; color:var(--muted); }
-  .search {
-    display:flex; align-items:center; gap:8px; background:var(--surface);
-    border:1px solid var(--line); border-radius:18px; padding:5px 5px 5px 15px;
-  }
-  .search .ph { flex:1; font-size:15px; color:var(--muted); padding:11px 0; }
-  .search .btn { background:var(--accent); color:#fff; font-size:14px; font-weight:600; padding:11px 18px; border-radius:14px; }
-  .h2 { font-size:12px; color:var(--muted); font-weight:600; margin:28px 0 12px; }
-  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-  .tile { display:flex; flex-direction:column; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:13px 4px 11px; }
-  .tile .ico { font-size:21px; line-height:1; height:22px; }
-  .tile .nm { font-size:10.5px; color:var(--muted); text-align:center; line-height:1.25; }
-  .recent a { display:block; padding:13px 0; border-bottom:1px solid var(--line); text-decoration:none; color:var(--text); font-size:14px; }
-  .recent .u { display:block; font-size:11px; color:var(--muted); margin-top:3px; }
-  .navbar {
-    display:flex; justify-content:space-around; align-items:center; padding: 6px 4px 14px;
-    border-top: 1px solid var(--line); background: var(--bg); color: var(--text);
-  }
-  .nav { display:flex; flex-direction:column; align-items:center; gap:3px; min-width: 62px; }
-  .nav .g { font-size:18px; color: var(--text); line-height:1; }
-  .nav .l { font-size:9px; color: var(--muted); }
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700;position:relative; }
+  .logo i { position:absolute;right:8px;top:8px;width:7px;height:7px;border-radius:50%;background:var(--red);display:block; }
+  .head h1 { margin:0; font-size:15px; font-weight:700; }
+  .head p { margin:2px 0 0; font-size:11px; color:var(--muted); }
+  .search { display:flex; align-items:center; gap:8px; background:var(--surface);
+    border:1px solid var(--line); border-radius:16px; padding:4px 4px 4px 13px; }
+  .search .ph { flex:1; font-size:13px; color:var(--muted); padding:10px 0; }
+  .search .btn { background:var(--accent); color:#fff; font-size:12px; font-weight:600; padding:10px 14px; border-radius:12px; }
+  .h2 { font-size:11px; color:var(--muted); font-weight:600; margin:22px 0 9px; }
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .tile { display:flex; flex-direction:column; align-items:center; gap:5px; background:var(--surface);
+    border:1px solid var(--line); border-radius:14px; padding:10px 3px 9px; }
+  .tile .ico { font-size:18px; line-height:1; height:19px; }
+  .tile .nm { font-size:9.5px; color:var(--muted); text-align:center; line-height:1.2; }
+  .recent a { display:block; padding:11px 0; border-bottom:1px solid var(--line); color:var(--text); font-size:12.5px; }
+  .recent .u { display:block; font-size:10px; color:var(--muted); margin-top:2px; }
+  .navbar { display:flex; justify-content:space-around; align-items:center; padding: 5px 4px 12px;
+    border-top: 1px solid var(--line); background: var(--bg); color: var(--text); }
+  .nav { display:flex; flex-direction:column; align-items:center; gap:2px; min-width: 55px; }
+  .nav .g { font-size:16px; color: var(--text); line-height:1; }
+  .nav .l { font-size:8.5px; color: var(--muted); }
   .nav .g.on { color: var(--accent); }
   .nav .g.dim { opacity:.3; }
+
+  /* news page */
+  .article { padding: 12px 16px; }
+  .art-src { font-size:10px; color:var(--accent); font-weight:700; margin-bottom:6px; }
+  .art-h { font-size:17px; font-weight:700; line-height:1.4; margin:0 0 8px; }
+  .art-meta { font-size:10px; color:var(--muted); margin-bottom:12px; }
+  .art-img { height:120px; border-radius:10px; background:linear-gradient(135deg,#1c4d3d,#4f7f6d); margin-bottom:12px; }
+  .art-p { font-size:11.5px; line-height:1.85; color:var(--text); opacity:.85; margin:0 0 9px; }
+  .art-p.short { width: 78%; }
+
+  /* menu sheet */
+  .dimlayer { position:absolute; inset:0; background:rgba(0,0,0,.45); }
+  .sheet { position:absolute; left:0; right:0; bottom:0; background:var(--bg);
+    border-radius: 18px 18px 0 0; padding: 6px 8px 14px; }
+  .grip { width:36px; height:4px; border-radius:3px; background:var(--line); margin: 6px auto 8px; }
+  .mrow { display:flex; align-items:center; gap:10px; padding: 10px 12px; border-radius: 10px; }
+  .mrow .mi { width: 22px; text-align:center; font-size:13px; }
+  .mrow .ml { flex:1; font-size:13px; }
+  .mrow .mv { font-size:10.5px; color:var(--muted); }
+  .msec { font-size:9.5px; font-weight:700; color:var(--muted); padding: 10px 12px 4px; }
+
+  /* settings */
+  .setrow { display:flex; align-items:center; gap:10px; background:var(--surface);
+    border-radius:10px; padding: 11px 12px; margin-bottom:2px; }
+  .setrow .si { width: 22px; text-align:center; font-size:12px; }
+  .setrow .sl { flex:1; font-size:13px; }
+  .setrow .sv { font-size:10.5px; color:var(--muted); }
+  .sw { width: 32px; height: 18px; border-radius: 9px; background: var(--accent); position:relative; flex:none; }
+  .sw::after { content:""; position:absolute; right:2px; top:2px; width:14px; height:14px; border-radius:50%; background:#fff; }
+  .sw.off { background: var(--line); }
+  .sw.off::after { right:auto; left:2px; }
+  .setsec { font-size:9.5px; font-weight:700; color:var(--muted); padding: 14px 6px 5px; }
+  .setback { display:flex; align-items:center; gap:8px; padding: 8px 12px 12px; }
+  .setback .ar { font-size:22px; line-height:1; }
+  .setback h2m { font-size:16px; font-weight:700; }
 </style>
 </head>
 <body>
 
-<!-- light -->
+<!-- 1: browser with tabs -->
 <div class="phone">
-  <div class="status"><span>9:41</span><span>▮ ▮ ▮ ⌁</span></div>
+  <div class="status"><span>9:41</span><span>▮▮▮ ⌁</span></div>
   <div class="topbar">
-    <div class="titlerow"><span class="brand">বাংলা ব্রাউজার</span><span class="ptitle">হোম</span></div>
+    <div class="titlerow">
+      <span class="brand">বাংলা ব্রাউজার</span>
+      <span class="ptitle">হোম</span>
+      <span class="tabs-badge">3</span>
+      <span class="dots">⋮</span>
+    </div>
     <div class="pill"><span class="lock">🔒</span><span class="url">সার্চ করুন বা ঠিকানা লিখুন</span><span class="rel">↻</span></div>
-  </div>
-  <div class="body">
-    <div class="head">
-      <div class="logo">ব<i></i></div>
-      <div><h1>বাংলা ব্রাউজার</h1><p>দ্রুত, সহজ, বাংলায়</p></div>
-    </div>
-    <div class="search"><span>🔍</span><span class="ph">গুগলে সার্চ করুন</span><span class="btn">খুঁজুন</span></div>
-    <div class="h2">প্রিয় সাইট</div>
-    <div class="tiles">
-      <div class="tile"><span class="ico">📰</span><span class="nm">প্রথম আলো</span></div>
-      <div class="tile"><span class="ico">🗞️</span><span class="nm">কালের কণ্ঠ</span></div>
-      <div class="tile"><span class="ico">📻</span><span class="nm">বিডিনিউজ</span></div>
-      <div class="tile"><span class="ico">📚</span><span class="nm">উইকিপিডিয়া</span></div>
-      <div class="tile"><span class="ico">▶️</span><span class="nm">ইউটিউব</span></div>
-      <div class="tile"><span class="ico">📘</span><span class="nm">ফেসবুক</span></div>
-      <div class="tile"><span class="ico">✉️</span><span class="nm">জিমেইল</span></div>
-      <div class="tile"><span class="ico">📡</span><span class="nm">বাংলানিউজ</span></div>
-    </div>
-    <div class="h2">সাম্প্রতিক</div>
-    <div class="recent">
-      <a>প্রথম আলো<span class="u">www.prothomalo.com</span></a>
-      <a>উইকিপিডিয়া<span class="u">bn.wikipedia.org</span></a>
-    </div>
-  </div>
-  <div class="navbar">
-    <div class="nav"><span class="g dim">◀</span><span class="l">পিছনে</span></div>
-    <div class="nav"><span class="g dim">▶</span><span class="l">সামনে</span></div>
-    <div class="nav"><span class="g">⌂</span><span class="l">হোম</span></div>
-    <div class="nav"><span class="g">☆</span><span class="l">বুকমার্ক</span></div>
-    <div class="nav"><span class="g">⋮</span><span class="l">মেনু</span></div>
-  </div>
-</div>
-
-<!-- dark -->
-<div class="phone dark">
-  <div class="status"><span>9:41</span><span>▮ ▮ ▮ ⌁</span></div>
-  <div class="topbar">
-    <div class="titlerow"><span class="brand">বাংলা ব্রাউজার</span><span class="ptitle">রাতের মোড</span></div>
-    <div class="pill"><span class="lock">🔒</span><span class="url">prothomalo.com</span><span class="rel">↻</span></div>
   </div>
   <div class="body">
     <div class="head">
@@ -145,11 +145,81 @@
     </div>
   </div>
   <div class="navbar">
+    <div class="nav"><span class="g dim">◀</span><span class="l">পিছনে</span></div>
+    <div class="nav"><span class="g dim">▶</span><span class="l">সামনে</span></div>
+    <div class="nav"><span class="g">⌂</span><span class="l">হোম</span></div>
+    <div class="nav"><span class="g">☆</span><span class="l">বুকমার্ক</span></div>
+    <div class="nav"><span class="g">▣</span><span class="l">ট্যাব</span></div>
+  </div>
+</div>
+
+<!-- 2: page + edge menu -->
+<div class="phone dark">
+  <div class="status"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+  <div class="topbar">
+    <div class="titlerow">
+      <span class="brand">বাংলা ব্রাউজার</span>
+      <span class="ptitle">খবর</span>
+      <span class="tabs-badge">3</span>
+      <span class="dots">⋮</span>
+    </div>
+    <div class="pill"><span class="lock">🔒</span><span class="url">bangla.bdnews24.com</span><span class="rel">↻</span></div>
+  </div>
+  <div class="body" style="padding:0">
+    <div class="article">
+      <div class="art-src">বিডিনিউজ টোয়েন্টিফোর</div>
+      <h3 class="art-h">ঢাকায় নতুন মেট্রো স্টেশন চালু, যাত্রী ভিড়</h3>
+      <div class="art-meta">আজ · ২ ঘণ্টা আগে</div>
+      <div class="art-img"></div>
+      <p class="art-p">রাজধানীতে নতুন মেট্রোরেল স্টেশন উদ্বোধনের পর প্রথম দিনেই যাত্রীদের ভিড় দেখা গেছে। সকাল থেকে স্টেশনে টিকিট কাটার লাইন ছিল দীর্ঘ।</p>
+      <p class="art-p">কর্তৃপক্ষ জানিয়েছে, প্রতিদিন প্রায় ৪০ হাজার যাত্রী এই স্টেশন ব্যবহার করবেন।</p>
+      <p class="art-p short">ট্রেন চলাচল শুরু হয় সকাল ছয়টায়।</p>
+    </div>
+  </div>
+  <div class="navbar">
     <div class="nav"><span class="g">◀</span><span class="l">পিছনে</span></div>
     <div class="nav"><span class="g dim">▶</span><span class="l">সামনে</span></div>
     <div class="nav"><span class="g">⌂</span><span class="l">হোম</span></div>
-    <div class="nav"><span class="g on">★</span><span class="l">বুকমার্ক</span></div>
-    <div class="nav"><span class="g">⋮</span><span class="l">মেনু</span></div>
+    <div class="nav"><span class="g">★</span><span class="l">বুকমার্ক</span></div>
+    <div class="nav"><span class="g on">▣</span><span class="l">ট্যাব</span></div>
+  </div>
+  <div class="dimlayer"></div>
+  <div class="sheet">
+    <div class="grip"></div>
+    <div class="mrow"><span class="mi">+</span><span class="ml">নতুন ট্যাব</span></div>
+    <div class="mrow"><span class="mi">★</span><span class="ml">বুকমার্ক</span><span class="mv">২</span></div>
+    <div class="mrow"><span class="mi">🕘</span><span class="ml">ইতিহাস</span></div>
+    <div class="mrow"><span class="mi">⬇</span><span class="ml">ডাউনলোড</span></div>
+    <div class="mrow"><span class="mi">⤴</span><span class="ml">শেয়ার</span></div>
+    <div class="msec">পেজ</div>
+    <div class="mrow"><span class="mi">📱</span><span class="ml">ডেস্কটপ সাইট</span><span class="mv">বন্ধ</span></div>
+    <div class="mrow"><span class="mi">☾</span><span class="ml">রাতের মোড</span><span class="mv">চালু</span></div>
+    <div class="msec">অ্যাপ</div>
+    <div class="mrow"><span class="mi">⚙</span><span class="ml">সেটিংস</span></div>
+    <div class="mrow"><span class="mi">ℹ</span><span class="ml">অ্যাপ সম্পর্কে</span><span class="mv">১.১</span></div>
+  </div>
+</div>
+
+<!-- 3: settings -->
+<div class="phone">
+  <div class="status"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+  <div style="background:var(--bg);flex:none">
+    <div class="setback"><span class="ar">‹</span><span style="font-size:16px;font-weight:700">সেটিংস</span></div>
+  </div>
+  <div class="body" style="padding:0 12px">
+    <div class="setsec">সাধারণ</div>
+    <div class="setrow"><span class="si">🔍</span><span class="sl">সার্চ ইঞ্জিন</span><span class="sv">Google</span></div>
+    <div class="setrow"><span class="si">Aa</span><span class="sl">লেখার আকার</span><span class="sv">100%</span></div>
+    <div class="setsec">চেহারা</div>
+    <div class="setrow"><span class="si">☾</span><span class="sl">রাতের মোড</span><span class="sw off"></span></div>
+    <div class="setrow"><span class="si">🖥</span><span class="sl">ডেস্কটপ সাইট</span><span class="sw off"></span></div>
+    <div class="setsec">ব্রাউজিং</div>
+    <div class="setrow"><span class="si">⚙</span><span class="sl">জাভাস্ক্রিপ্ট</span><span class="sw"></span></div>
+    <div class="setrow"><span class="si">🖼</span><span class="sl">ছবি লোড</span><span class="sw"></span></div>
+    <div class="setsec">ডেটা</div>
+    <div class="setrow"><span class="si">🕘</span><span class="sl">ইতিহাস মুছুন</span></div>
+    <div class="setrow"><span class="si">★</span><span class="sl">বুকমার্ক মুছুন</span></div>
+    <div class="setrow"><span class="si">🧹</span><span class="sl">কুকি ও ক্যাশে মুছুন</span></div>
   </div>
 </div>
 

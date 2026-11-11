@@ -42,4 +42,5 @@ build.sh                                the build
 
 ## Changelog
 
+- 1.1 tabs with a Chrome style switcher, Edge style bottom menu, settings screen (search engine, text size, JavaScript, images, clear data), session restore.
 - 1.0 first build: browser, bookmarks, history, dark mode, downloads, uploads.
