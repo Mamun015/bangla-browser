@@ -1,0 +1,8 @@
+build/
+sdk/
+*.apk
+keystore.jks
+*.jks
+.DS_Store
+*.idsig
+*.apk.idsig

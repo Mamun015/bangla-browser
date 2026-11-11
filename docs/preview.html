@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>preview</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; padding: 26px; background: #0b0d0c;
+    background-image: radial-gradient(circle at 20% 0%, #14342a 0%, #0b0d0c 55%);
+    font-family: "Noto Sans Bengali", sans-serif;
+    display: flex; gap: 26px; justify-content: center; align-items: flex-start;
+  }
+  .phone {
+    width: 372px; height: 792px; border-radius: 38px; overflow: hidden;
+    position: relative; background: #fff; color: #111714;
+    box-shadow: 0 30px 60px rgba(0,0,0,.55), 0 0 0 9px #16191a, 0 0 0 10px #2a2f2d;
+    display: flex; flex-direction: column;
+    --bg:#fff; --surface:#f1f5f3; --text:#111714; --muted:#68736d;
+    --accent:#006a4e; --line:#e1e8e4; --red:#f42a41;
+  }
+  .phone.dark {
+    background:#0f1211; color:#e9efec;
+    --bg:#0f1211; --surface:#191e1c; --text:#e9efec; --muted:#8b9791;
+    --accent:#2bbd8f; --line:#252c29;
+  }
+  .status {
+    height: 34px; display:flex; align-items:center; justify-content:space-between;
+    padding: 0 20px; font-size: 11px; color: var(--text); opacity:.75; font-family: sans-serif;
+  }
+  .topbar { padding: 0 12px 8px; background: var(--bg); }
+  .titlerow { display:flex; align-items:center; justify-content:space-between; padding: 0 2px 8px; }
+  .brand { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .ptitle { font-size: 11px; color: var(--muted); max-width: 150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pill {
+    display:flex; align-items:center; gap:6px; background: var(--surface);
+    border:1px solid var(--line); border-radius: 24px; padding: 0 12px 0 14px;
+  }
+  .pill .lock { font-size: 11px; opacity:.7; }
+  .pill .url { flex:1; font-size: 13.5px; color: var(--muted); padding: 10px 0; }
+  .pill .rel { font-size: 18px; color: var(--muted); padding: 4px 0 4px 10px; }
+  .body { flex:1; overflow: hidden; background: var(--bg); padding: 20px 16px 0; color: var(--text); }
+  .head { display:flex; align-items:center; gap:12px; margin-bottom: 22px; }
+  .logo {
+    width:42px;height:42px;border-radius:14px;flex:none;
+    background: linear-gradient(145deg, var(--accent), #00523c);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700;position:relative;
+  }
+  .logo i { position:absolute;right:9px;top:9px;width:8px;height:8px;border-radius:50%;background:var(--red);display:block; }
+  .head h1 { margin:0; font-size:17px; font-weight:700; }
+  .head p { margin:3px 0 0; font-size:12px; color:var(--muted); }
+  .search {
+    display:flex; align-items:center; gap:8px; background:var(--surface);
+    border:1px solid var(--line); border-radius:18px; padding:5px 5px 5px 15px;
+  }
+  .search .ph { flex:1; font-size:15px; color:var(--muted); padding:11px 0; }
+  .search .btn { background:var(--accent); color:#fff; font-size:14px; font-weight:600; padding:11px 18px; border-radius:14px; }
+  .h2 { font-size:12px; color:var(--muted); font-weight:600; margin:28px 0 12px; }
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .tile { display:flex; flex-direction:column; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:13px 4px 11px; }
+  .tile .ico { font-size:21px; line-height:1; height:22px; }
+  .tile .nm { font-size:10.5px; color:var(--muted); text-align:center; line-height:1.25; }
+  .recent a { display:block; padding:13px 0; border-bottom:1px solid var(--line); text-decoration:none; color:var(--text); font-size:14px; }
+  .recent .u { display:block; font-size:11px; color:var(--muted); margin-top:3px; }
+  .navbar {
+    display:flex; justify-content:space-around; align-items:center; padding: 6px 4px 14px;
+    border-top: 1px solid var(--line); background: var(--bg); color: var(--text);
+  }
+  .nav { display:flex; flex-direction:column; align-items:center; gap:3px; min-width: 62px; }
+  .nav .g { font-size:18px; color: var(--text); line-height:1; }
+  .nav .l { font-size:9px; color: var(--muted); }
+  .nav .g.on { color: var(--accent); }
+  .nav .g.dim { opacity:.3; }
+</style>
+</head>
+<body>
+
+<!-- light -->
+<div class="phone">
+  <div class="status"><span>9:41</span><span>▮ ▮ ▮ ⌁</span></div>
+  <div class="topbar">
+    <div class="titlerow"><span class="brand">বাংলা ব্রাউজার</span><span class="ptitle">হোম</span></div>
+    <div class="pill"><span class="lock">🔒</span><span class="url">সার্চ করুন বা ঠিকানা লিখুন</span><span class="rel">↻</span></div>
+  </div>
+  <div class="body">
+    <div class="head">
+      <div class="logo">ব<i></i></div>
+      <div><h1>বাংলা ব্রাউজার</h1><p>দ্রুত, সহজ, বাংলায়</p></div>
+    </div>
+    <div class="search"><span>🔍</span><span class="ph">গুগলে সার্চ করুন</span><span class="btn">খুঁজুন</span></div>
+    <div class="h2">প্রিয় সাইট</div>
+    <div class="tiles">
+      <div class="tile"><span class="ico">📰</span><span class="nm">প্রথম আলো</span></div>
+      <div class="tile"><span class="ico">🗞️</span><span class="nm">কালের কণ্ঠ</span></div>
+      <div class="tile"><span class="ico">📻</span><span class="nm">বিডিনিউজ</span></div>
+      <div class="tile"><span class="ico">📚</span><span class="nm">উইকিপিডিয়া</span></div>
+      <div class="tile"><span class="ico">▶️</span><span class="nm">ইউটিউব</span></div>
+      <div class="tile"><span class="ico">📘</span><span class="nm">ফেসবুক</span></div>
+      <div class="tile"><span class="ico">✉️</span><span class="nm">জিমেইল</span></div>
+      <div class="tile"><span class="ico">📡</span><span class="nm">বাংলানিউজ</span></div>
+    </div>
+    <div class="h2">সাম্প্রতিক</div>
+    <div class="recent">
+      <a>প্রথম আলো<span class="u">www.prothomalo.com</span></a>
+      <a>উইকিপিডিয়া<span class="u">bn.wikipedia.org</span></a>
+    </div>
+  </div>
+  <div class="navbar">
+    <div class="nav"><span class="g dim">◀</span><span class="l">পিছনে</span></div>
+    <div class="nav"><span class="g dim">▶</span><span class="l">সামনে</span></div>
+    <div class="nav"><span class="g">⌂</span><span class="l">হোম</span></div>
+    <div class="nav"><span class="g">☆</span><span class="l">বুকমার্ক</span></div>
+    <div class="nav"><span class="g">⋮</span><span class="l">মেনু</span></div>
+  </div>
+</div>
+
+<!-- dark -->
+<div class="phone dark">
+  <div class="status"><span>9:41</span><span>▮ ▮ ▮ ⌁</span></div>
+  <div class="topbar">
+    <div class="titlerow"><span class="brand">বাংলা ব্রাউজার</span><span class="ptitle">রাতের মোড</span></div>
+    <div class="pill"><span class="lock">🔒</span><span class="url">prothomalo.com</span><span class="rel">↻</span></div>
+  </div>
+  <div class="body">
+    <div class="head">
+      <div class="logo">ব<i></i></div>
+      <div><h1>বাংলা ব্রাউজার</h1><p>দ্রুত, সহজ, বাংলায়</p></div>
+    </div>
+    <div class="search"><span>🔍</span><span class="ph">গুগলে সার্চ করুন</span><span class="btn">খুঁজুন</span></div>
+    <div class="h2">প্রিয় সাইট</div>
+    <div class="tiles">
+      <div class="tile"><span class="ico">📰</span><span class="nm">প্রথম আলো</span></div>
+      <div class="tile"><span class="ico">🗞️</span><span class="nm">কালের কণ্ঠ</span></div>
+      <div class="tile"><span class="ico">📻</span><span class="nm">বিডিনিউজ</span></div>
+      <div class="tile"><span class="ico">📚</span><span class="nm">উইকিপিডিয়া</span></div>
+      <div class="tile"><span class="ico">▶️</span><span class="nm">ইউটিউব</span></div>
+      <div class="tile"><span class="ico">📘</span><span class="nm">ফেসবুক</span></div>
+      <div class="tile"><span class="ico">✉️</span><span class="nm">জিমেইল</span></div>
+      <div class="tile"><span class="ico">📡</span><span class="nm">বাংলানিউজ</span></div>
+    </div>
+    <div class="h2">সাম্প্রতিক</div>
+    <div class="recent">
+      <a>প্রথম আলো<span class="u">www.prothomalo.com</span></a>
+      <a>বাংলা উইকিপিডিয়া<span class="u">bn.wikipedia.org</span></a>
+    </div>
+  </div>
+  <div class="navbar">
+    <div class="nav"><span class="g">◀</span><span class="l">পিছনে</span></div>
+    <div class="nav"><span class="g dim">▶</span><span class="l">সামনে</span></div>
+    <div class="nav"><span class="g">⌂</span><span class="l">হোম</span></div>
+    <div class="nav"><span class="g on">★</span><span class="l">বুকমার্ক</span></div>
+    <div class="nav"><span class="g">⋮</span><span class="l">মেনু</span></div>
+  </div>
+</div>
+
+</body>
+</html>
