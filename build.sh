@@ -7,7 +7,7 @@ SDK="$PWD/sdk"
 AJ="$SDK/android.jar"
 R8="$SDK/r8.jar"
 OUT="$PWD/build"
-NAME="BanglaBrowser-1.1.01.apk"
+NAME="BanglaBrowser-1.1.02.apk"
 
 rm -rf "$OUT"
 mkdir -p "$OUT/gen" "$OUT/classes" "$OUT/dex"

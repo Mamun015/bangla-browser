@@ -14,8 +14,8 @@ WebView based. No ads. No tracking. About 100 KB.
 [Build](#build-from-source)
 
 ![Android 5.0+](https://img.shields.io/badge/Android-5.0%2B-3ddc84?logo=android&logoColor=white)
-![Version](https://img.shields.io/badge/version-1.1.01-006a4e)
-![License](https://img.shields.io/badge/license-MIT-blue)
+![Version](https://img.shields.io/badge/version-1.1.02-006a4e)
+![License](https://img.shields.io/badge/license-MPL--2.0-blue)
 ![Size](https://img.shields.io/badge/APK-105%20KB-lightgrey)
 
 </div>
@@ -40,7 +40,7 @@ WebView based. No ads. No tracking. About 100 KB.
 
 ## Install
 
-1. Download **[BanglaBrowser-1.1.01.apk](https://github.com/mamun0937/bangla-browser/releases/latest)**.
+1. Download **[BanglaBrowser-1.1.02.apk](https://github.com/mamun0937/bangla-browser/releases/latest)**.
 2. Tap the file in your phone's Downloads folder.
 3. Allow installs from this source when Android asks, then tap **Install**.
 
@@ -66,7 +66,7 @@ Requirements:
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 bash build.sh
 ```
 
-Output: `BanglaBrowser-1.1.01.apk`. See [BUILD.md](BUILD.md) for details. The signing key (`keystore.jks`) is not in the repository; generate your own to build a fork.
+Output: `BanglaBrowser-1.1.02.apk`. See [BUILD.md](BUILD.md) for details. The signing key (`keystore.jks`) is not in the repository; generate your own to build a fork.
 
 ## Limitations
 
@@ -77,7 +77,7 @@ Output: `BanglaBrowser-1.1.01.apk`. See [BUILD.md](BUILD.md) for details. The si
 
 ## FAQ
 
-**Is it free?** Yes. MIT licensed, no ads, no in-app purchases.
+**Is it free?** Yes. Open source under MPL-2.0, no ads, no in-app purchases.
 
 **Does it collect data?** No analytics or tracking. Bookmarks, history and settings stay on the device.
 
@@ -89,7 +89,14 @@ Output: `BanglaBrowser-1.1.01.apk`. See [BUILD.md](BUILD.md) for details. The si
 
 ## License
 
-[MIT](LICENSE). Use it, change it, share it.
+[Mozilla Public License 2.0](LICENSE).
+
+In short: anyone may use, change and share the code. If you modify a file and
+distribute it, that file stays under the MPL, so nobody can take this code and
+close it. The name and icon are separate; see [TRADEMARK.md](TRADEMARK.md).
+
+Versions released before 1.1.02 (1.0, 1.1, 1.1.01) were published under the MIT
+license and stay under it.
 
 <div align="center">
 

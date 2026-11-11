@@ -757,7 +757,7 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             }
         }));
-        list.addView(menuRow("ℹ️", "অ্যাপ সম্পর্কে", "১.১.০১", new Runnable() {
+        list.addView(menuRow("ℹ️", "অ্যাপ সম্পর্কে", "১.১.০২", new Runnable() {
             public void run() { about(); }
         }));
 
@@ -1266,7 +1266,7 @@ public class MainActivity extends Activity {
     }
 
     private void about() {
-        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.১.০১\n\n"
+        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.১.০২\n\n"
                 + "সহজ, দ্রুত ও সম্পূর্ণ বাংলা ব্রাউজার।\n"
                 + "ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড — সব একসাথে।\n\n"
                 + "নির্মাতা\n"

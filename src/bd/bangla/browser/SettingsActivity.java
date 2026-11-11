@@ -164,7 +164,7 @@ public class SettingsActivity extends Activity {
         }));
 
         list.addView(section("অ্যাপ"));
-        list.addView(row("ℹ", "সংস্করণ", "১.১.০১", null));
+        list.addView(row("ℹ", "সংস্করণ", "১.১.০২", null));
         list.addView(row("🔗", "সোর্স কোড", "GitHub", new Runnable() {
             public void run() {
                 try {
@@ -173,7 +173,7 @@ public class SettingsActivity extends Activity {
                 } catch (Exception ignored) { }
             }
         }));
-        list.addView(row("📄", "লাইসেন্স", "MIT", null));
+        list.addView(row("📄", "লাইসেন্স", "MPL-2.0", null));
 
         scroll.addView(list);
         root.addView(scroll, new LinearLayout.LayoutParams(
