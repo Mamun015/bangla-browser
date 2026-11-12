@@ -160,6 +160,7 @@ public class SettingsActivity extends Activity {
         list.addView(switchRow("🖥", "ডেস্কটপ সাইট", prefs.getBoolean("desktop", false), "desktop"));
 
         list.addView(section("ব্রাউজিং"));
+        list.addView(switchRow("অ", "বাংলায় অনুবাদ", prefs.getBoolean("autotranslate", true), "autotranslate"));
         list.addView(switchRow("⚙", "জাভাস্ক্রিপ্ট", prefs.getBoolean("js", true), "js"));
         list.addView(switchRow("🖼", "ছবি লোড", prefs.getBoolean("images", true), "images"));
         list.addView(switchRow("🗂", "লিংক নতুন ট্যাবে", prefs.getBoolean("newtab", false), "newtab"));

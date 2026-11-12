@@ -4,8 +4,8 @@
 
 # বাংলা ব্রাউজার · Bangla Browser
 
-**A fast, light Android browser with a full Bengali interface.**
-WebView based. No ads. No tracking. About 100 KB.
+**A fast, light Android browser with a full Bengali interface — and every English page turns into Bengali by itself.**
+WebView based. No ads. No tracking. About 125 KB.
 
 [**⬇ Download APK**](https://github.com/Mamun015/bangla-browser/releases/latest) ·
 [Website](https://mamun015.github.io/bangla-browser/) ·
@@ -14,9 +14,9 @@ WebView based. No ads. No tracking. About 100 KB.
 [Build](#build-from-source)
 
 ![Android 5.0+](https://img.shields.io/badge/Android-5.0%2B-3ddc84?logo=android&logoColor=white)
-![Version](https://img.shields.io/badge/version-1.2-006a4e)
+![Version](https://img.shields.io/badge/version-1.2.1-006a4e)
 ![License](https://img.shields.io/badge/license-MPL--2.0-blue)
-![Size](https://img.shields.io/badge/APK-105%20KB-lightgrey)
+![Size](https://img.shields.io/badge/APK-125%20KB-lightgrey)
 
 </div>
 
@@ -24,11 +24,23 @@ WebView based. No ads. No tracking. About 100 KB.
 
 বাংলা ভাষার জন্য বানানো একটি ছোট আর দ্রুত অ্যান্ড্রয়েড ব্রাউজার। পুরো ইন্টারফেস বাংলায়, বিজ্ঞাপন নেই, ট্র্যাকিং নেই। ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড — দৈনন্দিন ব্রাউজিংয়ের যা দরকার, সব একসাথে।
 
+## যা এই ব্রাউজারটাকে আলাদা করে
+
+| | |
+|---|---|
+| **🅰️ অটো বাংলা অনুবাদ** | যেকোনো ইংরেজি পেজ খুললেই লেখা নিজে থেকেই বাংলায় বদলে যায়, আলাদা অ্যাপ বা এক্সটেনশন ছাড়াই। ডিফল্টে চালু, মেনু বা সেটিংস থেকে এক ট্যাপে বন্ধ। |
+| **🇧🇩 পুরো ইন্টারফেস বাংলায়** | মেনু, সেটিংস, বার্তা, হোম পেজ — সব বাংলায়। বয়স্ক বা ইংরেজিতে অনভ্যস্ত ব্যবহারকারীরাও চালাতে পারেন। |
+| **🪶 মাত্র ১২৫ কিলোবাইট** | Chrome বা Firefox-এর চেয়ে বহুগুণ ছোট, তাই পুরোনো আর কম মেমরির ফোনেও দ্রুত চলে। ইনস্টল করতেও জায়গা লাগে না। |
+| **📵 বিজ্ঞাপন নেই, ট্র্যাকিং নেই** | কোনো অ্যানালিটিক্স, কোনো ইন-অ্যাপ কেনাকাটা, কোনো অ্যাকাউন্ট লাগে না। |
+| **🧩 প্রিয় সাইট এডিটর** | হোম পেজের সাইটের তালিকা নিজের মতো সাজানো যায়, প্রতিটার আসল আইকনসহ। |
+| **🔓 MPL-2.0 ওপেন সোর্স** | পুরো কোড GitHub-এ। রিভিউ করা যায়, নিজে বিল্ড করা যায়। |
+
 ## Features
 
 | | |
 |---|---|
 | **বাংলা ইন্টারফেস** | Every button, menu and message is in Bengali. |
+| **Auto Bengali translation** | Any English page is translated into Bengali automatically, in place, as the text appears. On by default; one tap turns it off in the menu or in Settings. |
 | **Tabs** | Up to 32 tabs with a Chrome style switcher and a tab counter in the toolbar. |
 | **Edge style menu** | A bottom sheet with new tab, bookmarks, history, downloads, share, desktop site and dark mode. |
 | **Search built in** | Type a word to search Google, DuckDuckGo or Bing; type an address to open the site. |

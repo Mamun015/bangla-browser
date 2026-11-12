@@ -77,6 +77,20 @@
   .art-p { font-size:11.5px; line-height:1.85; color:var(--text); opacity:.85; margin:0 0 9px; }
   .art-p.short { width: 78%; }
 
+  /* auto translation */
+  .tr-pill { position:absolute; left:14px; bottom:74px; z-index:6; display:flex; align-items:center; gap:7px;
+    background:rgba(0,106,78,.94); color:#fff; font-size:10.5px; font-weight:700;
+    padding:6px 12px; border-radius:999px; box-shadow:0 8px 18px rgba(0,0,0,.4); }
+  .tr-pill .dot { width:6px; height:6px; border-radius:50%; background:#8ff0cd; }
+  .tr-chip { display:flex; align-items:center; gap:4px; background:var(--accent); color:#fff;
+    font-size:9.5px; font-weight:700; border-radius:999px; padding:3px 8px; margin-left:6px; flex:none; }
+  .src-line { display:flex; align-items:center; gap:7px; margin-bottom:10px; }
+  .src-logo { background:#bb1919; color:#fff; font:700 9px/1 sans-serif; padding:4px 6px; border-radius:3px; letter-spacing:.5px; }
+  .src-host { font-size:9.5px; color:var(--muted); }
+  .tr-note { font-size:9.5px; color:var(--accent); background:#eaf3ef; border-radius:8px;
+    padding:6px 9px; margin-bottom:10px; font-weight:600; }
+  .phone.dark .tr-note { background:#152a23; color:#4fd3a6; }
+
   /* menu sheet */
   .dimlayer { position:absolute; inset:0; background:rgba(0,0,0,.45); }
   .sheet { position:absolute; left:0; right:0; bottom:0; background:var(--bg);
@@ -206,7 +220,7 @@
     <div class="mrow"><span class="mi">🌙</span><span class="ml">রাতের মোড</span><span class="mv">চালু</span></div>
     <div class="msec">অ্যাপ</div>
     <div class="mrow"><span class="mi">⚙️</span><span class="ml">সেটিংস</span></div>
-    <div class="mrow"><span class="mi">ℹ️</span><span class="ml">অ্যাপ সম্পর্কে</span><span class="mv">১.২</span></div>
+    <div class="mrow"><span class="mi">ℹ️</span><span class="ml">অ্যাপ সম্পর্কে</span><span class="mv">১.২.১</span></div>
   </div>
 </div>
 
@@ -235,7 +249,7 @@
     <div class="setsec">অ্যাপ</div>
     <div class="setrow"><span class="si">🌐</span><span class="sl">ডিফল্ট ব্রাউজার</span><span class="sv">সেট করুন</span></div>
     <div class="setrow"><span class="si">⬇️</span><span class="sl">ডাউনলোড দেখুন</span></div>
-    <div class="setrow"><span class="si">ℹ️</span><span class="sl">সংস্করণ</span><span class="sv">১.২</span></div>
+    <div class="setrow"><span class="si">ℹ️</span><span class="sl">সংস্করণ</span><span class="sv">১.২.১</span></div>
     <div class="setrow"><span class="si">🔗</span><span class="sl">সোর্স কোড</span><span class="sv">GitHub</span></div>
   </div>
 </div>
@@ -277,7 +291,7 @@
   <div class="about">
     <h3>অ্যাপ সম্পর্কে</h3>
     <p class="big">বাংলা ব্রাউজার</p>
-    <p style="opacity:.7">সংস্করণ ১.২</p>
+    <p style="opacity:.7">সংস্করণ ১.২.১</p>
     <p style="margin-top:10px">সহজ, দ্রুত ও সম্পূর্ণ বাংলা ব্রাউজার।<br>
        ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড — সব একসাথে।</p>
     <p style="margin-top:12px">নির্মাতা<br>
@@ -287,6 +301,39 @@
        লাইসেন্স: MPL-2.0</p>
     <div class="made">Made in Bangladesh</div>
     <div class="btns"><span class="ok">ঠিক আছে</span></div>
+  </div>
+</div>
+
+<!-- 5: auto Bengali translation -->
+<div class="phone">
+  <div class="status"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+  <div class="topbar">
+    <div class="titlerow">
+      <span class="brand">বাংলা ব্রাউজার</span>
+      <span class="ptitle">অনুবাদ</span>
+      <span class="tabs-badge">4</span>
+    </div>
+    <div class="pill"><span class="lock">🔒</span><span class="url">bbc.com/news</span><span class="tr-chip">অ বাংলা</span></div>
+  </div>
+  <div class="body" style="padding:0">
+    <div class="article">
+      <div class="src-line"><span class="src-logo">BBC NEWS</span><span class="src-host">ইংরেজি সাইট · নিজে থেকেই বাংলায়</span></div>
+      <div class="tr-note">🅰️ অটো অনুবাদ চালু · যেকোনো ইংরেজি সাইট</div>
+      <h3 class="art-h">বিশ্ব অর্থনীতি ধীর হচ্ছে, তবে দক্ষিণ এশিয়ায় প্রবৃদ্ধি অব্যাহত</h3>
+      <div class="art-meta">বিবিসি নিউজ · ১ ঘণ্টা আগে</div>
+      <div class="art-img"></div>
+      <p class="art-p">নতুন প্রতিবেদনে বলা হয়েছে, আগামী বছর বৈশ্বিক প্রবৃদ্ধি কিছুটা কমলেও বাংলাদেশ ও প্রতিবেশী দেশগুলোতে চাহিদা বাড়ছে।</p>
+      <p class="art-p">“প্রবৃদ্ধির হার কমলেও দক্ষিণ এশিয়ার বাজার স্থিতিশীল,” বলেন সংস্থার প্রধান অর্থনীতিবিদ। কৃষি ও সেবা খাতেই কর্মসংস্থান বাড়ছে।</p>
+      <p class="art-p short">বিশ্লেষকদের মতে, রেমিট্যান্সই মূল ভরসা।</p>
+    </div>
+  </div>
+  <div class="tr-pill"><span class="dot"></span>বাংলায় অনুবাদ হচ্ছে…</div>
+  <div class="navbar">
+    <div class="nav"><span class="g">◀</span><span class="l">পিছনে</span></div>
+    <div class="nav"><span class="g dim">▶</span><span class="l">সামনে</span></div>
+    <div class="nav"><span class="g">⌂</span><span class="l">হোম</span></div>
+    <div class="nav"><span class="g">▣</span><span class="l">ট্যাব</span></div>
+    <div class="nav"><span class="g on">⋮</span><span class="l">মেনু</span></div>
   </div>
 </div>
 

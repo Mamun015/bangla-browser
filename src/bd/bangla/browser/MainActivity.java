@@ -24,6 +24,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -50,6 +51,8 @@ public class MainActivity extends Activity {
 
     private static final String HOME_URL = "file:///android_asset/home.html";
     private static final String PREFS = "bangla_browser";
+    private boolean autoTranslate = true;
+    private String translateJs;
     private static final String UA_DESKTOP =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
     private static final int MAX_TABS = 32;
@@ -92,6 +95,7 @@ public class MainActivity extends Activity {
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         darkMode = prefs.getBoolean("dark", false);
         desktopMode = prefs.getBoolean("desktop", false);
+        autoTranslate = prefs.getBoolean("autotranslate", true);
         pickColors();
 
         if (Build.VERSION.SDK_INT >= 21) {
@@ -172,6 +176,11 @@ public class MainActivity extends Activity {
         applySettings();
         if (desk != desktopMode) {
             desktopMode = desk;
+            if (current != null) current.reload();
+        }
+        boolean tr = prefs.getBoolean("autotranslate", true);
+        if (tr != autoTranslate) {
+            autoTranslate = tr;
             if (current != null) current.reload();
         }
     }
@@ -777,6 +786,15 @@ public class MainActivity extends Activity {
             }
         }));
 
+        list.addView(toggleRow("🅰️", "বাংলায় অনুবাদ", autoTranslate, new Runnable() {
+            public void run() {
+                autoTranslate = !autoTranslate;
+                prefs.edit().putBoolean("autotranslate", autoTranslate).apply();
+                if (current != null) current.reload();
+                showMenu();
+            }
+        }));
+
         list.addView(sectionLabel("ট্যাব"));
 
         list.addView(menuRow("🗑️", "সব ট্যাব বন্ধ", String.valueOf(tabs.size()), new Runnable() {
@@ -795,7 +813,7 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             }
         }));
-        list.addView(menuRow("ℹ️", "অ্যাপ সম্পর্কে", "১.২", new Runnable() {
+        list.addView(menuRow("ℹ️", "অ্যাপ সম্পর্কে", "১.২.১", new Runnable() {
             public void run() { about(); }
         }));
 
@@ -915,7 +933,7 @@ public class MainActivity extends Activity {
         texts.addView(name);
 
         TextView sub = new TextView(this);
-        sub.setText("সংস্করণ ১.২");
+        sub.setText("সংস্করণ ১.২.১");
         sub.setTextSize(11);
         sub.setTextColor(cMuted);
         texts.addView(sub);
@@ -1764,6 +1782,7 @@ public class MainActivity extends Activity {
 
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(prefs.getBoolean("js", true));
+        web.addJavascriptInterface(new TranslateBridge(), "BBTranslate");
         s.setDomStorageEnabled(true);
         s.setDatabaseEnabled(true);
         s.setLoadsImagesAutomatically(prefs.getBoolean("images", true));
@@ -1824,6 +1843,7 @@ public class MainActivity extends Activity {
                     injectSites(view);
                     injectRecent(view);
                 }
+                if (autoTranslate && isRealPage(url)) injectTranslate(view);
             }
 
             @Override
@@ -2170,10 +2190,57 @@ public class MainActivity extends Activity {
         b.setPositiveButton("বন্ধ", null).show();
     }
 
+    private void injectTranslate(WebView view) {
+        if (!prefs.getBoolean("js", true)) return;
+        if (translateJs == null) {
+            try {
+                java.io.InputStream in = getAssets().open("translate.js");
+                java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+                in.close();
+                translateJs = new String(out.toByteArray(), "UTF-8");
+            } catch (Exception e) {
+                return;
+            }
+        }
+        view.evaluateJavascript(translateJs, null);
+    }
+
+    /** সাইটের CSP-তে আটকে গেলে অনুবাদ এই ব্রিজ দিয়ে আনা হয়। */
+    private static class TranslateBridge {
+        @JavascriptInterface
+        public String get(String url) {
+            if (url == null || !url.startsWith("https://translate.googleapis.com/")) return "";
+            java.net.HttpURLConnection c = null;
+            try {
+                c = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
+                c.setConnectTimeout(8000);
+                c.setReadTimeout(12000);
+                c.setRequestProperty("User-Agent",
+                        "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36");
+                if (c.getResponseCode() != 200) return "";
+                java.io.InputStream in = c.getInputStream();
+                java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+                in.close();
+                return new String(out.toByteArray(), "UTF-8");
+            } catch (Exception e) {
+                return "";
+            } finally {
+                if (c != null) c.disconnect();
+            }
+        }
+    }
+
     private void about() {
-        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.২\n\n"
+        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.২.১\n\n"
                 + "সহজ, দ্রুত ও সম্পূর্ণ বাংলা ব্রাউজার।\n"
-                + "ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড — সব একসাথে।\n\n"
+                + "ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড — সব একসাথে।\n"
+                + "ইংরেজি পেজ নিজে থেকেই বাংলায় অনুবাদ হয়ে যায়।\n\n"
                 + "নির্মাতা\n"
                 + "মামুন (@Mamun015)\n"
                 + "github.com/Mamun015\n\n"
