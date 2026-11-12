@@ -905,7 +905,7 @@ public class MainActivity extends Activity {
         texts.addView(name);
 
         TextView sub = new TextView(this);
-        sub.setText("সংস্করণ ১.১.০৪ · MPL-2.0");
+        sub.setText("সংস্করণ ১.১.০৪");
         sub.setTextSize(11);
         sub.setTextColor(cMuted);
         texts.addView(sub);
