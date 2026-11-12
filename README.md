@@ -14,7 +14,7 @@ WebView based. No ads. No tracking. About 100 KB.
 [Build](#build-from-source)
 
 ![Android 5.0+](https://img.shields.io/badge/Android-5.0%2B-3ddc84?logo=android&logoColor=white)
-![Version](https://img.shields.io/badge/version-1.1.04-006a4e)
+![Version](https://img.shields.io/badge/version-1.2-006a4e)
 ![License](https://img.shields.io/badge/license-MPL--2.0-blue)
 ![Size](https://img.shields.io/badge/APK-105%20KB-lightgrey)
 
@@ -29,18 +29,19 @@ WebView based. No ads. No tracking. About 100 KB.
 | | |
 |---|---|
 | **বাংলা ইন্টারফেস** | Every button, menu and message is in Bengali. |
-| **Tabs** | Up to 8 tabs with a Chrome style switcher and a tab counter in the toolbar. |
+| **Tabs** | Up to 32 tabs with a Chrome style switcher and a tab counter in the toolbar. |
 | **Edge style menu** | A bottom sheet with new tab, bookmarks, history, downloads, share, desktop site and dark mode. |
 | **Search built in** | Type a word to search Google, DuckDuckGo or Bing; type an address to open the site. |
-| **Bookmarks & history** | Saved locally on the device, with one-tap clear options. |
+| **Bookmarks & history** | Saved locally; history opens full screen with the real site icon and a short name for every page. |
 | **Dark mode** | Full dark theme, including the built-in home page. |
-| **Downloads & uploads** | Android Download Manager for files, file picker for uploads. |
+| **Downloads & uploads** | Built-in downloader with cookies and user agent, live progress (size, percent, speed, remaining) and a cancel button. File picker for uploads. |
 | **Session restore** | Reopen the app and your tabs are still there. |
-| **Settings** | Search engine, text size, JavaScript, images, clear history, bookmarks, cookies and cache. |
+| **Favourite sites** | The home page grid is editable: add, remove and reorder sites, with their own icons. |
+| **Settings** | Search engine, text size, JavaScript, images, link in new tab, default browser, clear history, bookmarks, cookies, cache and all data. |
 
 ## Install
 
-1. Download **[BanglaBrowser-1.1.04.apk](https://github.com/Mamun015/bangla-browser/releases/latest)**.
+1. Download **[BanglaBrowser-1.2.apk](https://github.com/Mamun015/bangla-browser/releases/latest)**.
 2. Tap the file in your phone's Downloads folder.
 3. Allow installs from this source when Android asks, then tap **Install**.
 
@@ -66,7 +67,7 @@ Requirements:
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 bash build.sh
 ```
 
-Output: `BanglaBrowser-1.1.04.apk`. See [BUILD.md](BUILD.md) for details. The signing key (`keystore.jks`) is not in the repository; generate your own to build a fork.
+Output: `BanglaBrowser-1.2.apk`. See [BUILD.md](BUILD.md) for details. The signing key (`keystore.jks`) is not in the repository; generate your own to build a fork.
 
 ## FAQ
 

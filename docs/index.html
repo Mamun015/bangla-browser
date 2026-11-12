@@ -2,12 +2,14 @@
 <html lang="bn">
 <head>
 <meta charset="utf-8">
+<meta name="google-site-verification" content="VvvKrPlpBMTaPSt0qZbsMQRBtVzHeEQvF33vfzHtnF4" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>বাংলা ব্রাউজার (Bangla Browser) — Free Bengali Browser for Android</title>
-<meta name="description" content="Download বাংলা ব্রাউজার, a free, fast and light Android browser with a full Bengali interface. Tabs, bookmarks, history, dark mode. No ads, no tracking. APK 105 KB, MPL-2.0 license.">
+<meta name="description" content="Download বাংলা ব্রাউজার, a free, fast and light Android browser with a full Bengali interface. Tabs, bookmarks, history, dark mode. No ads, no tracking. APK 121 KB, MPL-2.0 license.">
 <meta name="keywords" content="Bangla Browser, বাংলা ব্রাউজার, Bengali browser, Bengali browser for Android, Android browser, Bangla APK, বাংলা অ্যাপ, ব্রাউজার, WebView browser, Bengali app download">
 <meta name="author" content="Mamun (@Mamun015)">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="googlebot" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#006a4e">
 <link rel="canonical" href="https://mamun015.github.io/bangla-browser/">
 <link rel="icon" href="icon.png" type="image/png">
@@ -16,9 +18,10 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Bangla Browser">
 <meta property="og:title" content="বাংলা ব্রাউজার — Bangla Browser for Android">
-<meta property="og:description" content="A free, fast Android browser with a full Bengali interface. Tabs, bookmarks, dark mode. No ads, no tracking. Download the 105 KB APK.">
+<meta property="og:description" content="A free, fast Android browser with a full Bengali interface. Tabs, bookmarks, dark mode. No ads, no tracking. Download the 121 KB APK.">
 <meta property="og:url" content="https://mamun015.github.io/bangla-browser/">
 <meta property="og:image" content="https://mamun015.github.io/bangla-browser/screenshot.png">
+<meta property="og:image:alt" content="বাংলা ব্রাউজার অ্যাপের চারটি স্ক্রিনশট">
 <meta property="og:locale" content="bn_BD">
 <meta property="og:locale:alternate" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
@@ -38,8 +41,8 @@
   "applicationCategory": "BrowserApplication",
   "applicationSubCategory": "Web Browser",
   "operatingSystem": "Android 5.0 and newer",
-  "softwareVersion": "1.1.04",
-  "fileSize": "105KB",
+  "softwareVersion": "1.2",
+  "fileSize": "121KB",
   "inLanguage": "bn",
   "license": "https://mozilla.org/MPL/2.0/",
   "isAccessibleForFree": true,
@@ -48,7 +51,7 @@
   "screenshot": "https://mamun015.github.io/bangla-browser/screenshot.png",
   "featureList": [
     "Full Bengali interface",
-    "Up to 8 tabs with a tab switcher",
+    "Up to 32 tabs with a tab switcher",
     "Bookmarks and history",
     "Dark mode",
     "Downloads and file uploads",
@@ -167,9 +170,15 @@
   h2 { font-size: clamp(24px, 3.4vw, 32px); margin: 0 0 8px; letter-spacing: -.3px; }
   .sub { color: var(--muted); margin: 0 0 28px; max-width: 46em; }
 
-  .shot { margin: 0; border-radius: var(--radius); overflow-x: auto; overflow-y: hidden; background: #0b0d0c; box-shadow: var(--shadow); -webkit-overflow-scrolling: touch; }
-  .shot img { width: 100%; }
-  @media (max-width: 760px) { .shot img { width: 860px; max-width: none; } }
+  .shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .shots img { width: 100%; height: auto; display: block; border-radius: 18px;
+    box-shadow: 0 16px 34px rgba(0,0,0,.45); background: #0b0d0c; }
+  @media (max-width: 900px) {
+    .shots { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 10px;
+      scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .shots img { flex: 0 0 68%; width: 68%; scroll-snap-align: center; }
+  }
+  @media (max-width: 430px) { .shots img { flex: 0 0 82%; width: 82%; } }
   .cap { font-size: 13px; color: var(--muted); margin-top: 12px; text-align: center; }
 
   .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -234,7 +243,7 @@
           <a class="btn ghost" href="https://github.com/Mamun015/bangla-browser">সোর্স কোড</a>
         </div>
         <div class="chips">
-          <span class="chip">সংস্করণ ১.১.০৪</span>
+          <span class="chip">সংস্করণ ১.২</span>
           <span class="chip">Android 5.0+</span>
           <span class="chip">১০৫ কিলোবাইট</span>
           <span class="chip">MPL-2.0 লাইসেন্স</span>
@@ -250,10 +259,13 @@
     <div class="wrap">
       <h2>অ্যাপের ভেতরে</h2>
       <p class="sub">হোম পেজ, Edge-স্টাইল মেনু, সেটিংস আর অ্যাপ সম্পর্কে — এক নজরে।</p>
-      <figure class="shot">
-        <img src="screenshot.png" alt="Bangla Browser screenshots: home page, bottom menu, settings and About dialog" loading="lazy" width="2960" height="1660">
-      </figure>
-      <p class="cap">বাংলা ব্রাউজার ১.১.০৪ · Android · <span style="white-space:nowrap">ছোট স্ক্রিনে পাশে স্ক্রল করো</span></p>
+      <div class="shots">
+        <img src="shot-1.png" alt="বাংলা ব্রাউজারের হোম পেজ" loading="lazy">
+        <img src="shot-2.png" alt="নিচ থেকে ওঠা মেনু" loading="lazy">
+        <img src="shot-3.png" alt="সেটিংস স্ক্রিন" loading="lazy">
+        <img src="shot-4.png" alt="অ্যাপ সম্পর্কে ডায়ালগ" loading="lazy">
+      </div>
+      <p class="cap">বাংলা ব্রাউজার ১.২ · Android · ছোট স্ক্রিনে পাশে সোয়াইপ করো</p>
     </div>
   </section>
 
@@ -263,7 +275,7 @@
       <p class="sub">দৈনন্দিন ব্রাউজিংয়ের জন্য যা দরকার, অপ্রয়োজনীয় কিছু ছাড়া।</p>
       <div class="features">
         <div class="feature"><span class="ico">🇧🇩</span><h3>সম্পূর্ণ বাংলা</h3><p>প্রতিটি বাটন, মেনু আর বার্তা বাংলায়। ইংরেজি জানা না থাকলেও চালানো যায়।</p></div>
-        <div class="feature"><span class="ico">🗂️</span><h3>৮টা পর্যন্ত ট্যাব</h3><p>Chrome-এর মতো ট্যাব সুইচার। উপরের সংখ্যায় চাপ দিলেই সব ট্যাবের তালিকা।</p></div>
+        <div class="feature"><span class="ico">🗂️</span><h3>৩২টা পর্যন্ত ট্যাব</h3><p>Chrome-এর মতো ট্যাব সুইচার। উপরের সংখ্যায় চাপ দিলেই সব ট্যাবের তালিকা।</p></div>
         <div class="feature"><span class="ico">⭐</span><h3>বুকমার্ক ও ইতিহাস</h3><p>পছন্দের পেজ সেভ থাকে ফোনেই। এক ট্যাপে পুরোনো ইতিহাসে ফেরা যায়।</p></div>
         <div class="feature"><span class="ico">🌙</span><h3>রাতের মোড</h3><p>রাতে চোখের আরামের জন্য পুরো অ্যাপ আর হোম পেজ কালো হয়ে যায়।</p></div>
         <div class="feature"><span class="ico">⚙️</span><h3>সেটিংস</h3><p>সার্চ ইঞ্জিন, লেখার আকার, জাভাস্ক্রিপ্ট, ছবি লোড — সব নিজের মতো সেট করা যায়।</p></div>
@@ -278,10 +290,19 @@
       <p class="sub">Play Store লাগবে না। ফোনে সরাসরি APK ইনস্টল করা যায়।</p>
       <div class="steps">
         <div class="step"><h3>APK নামাও</h3><p>উপরের ডাউনলোড বাটনে চাপ দিয়ে ফোনের Downloads ফোল্ডারে ফাইলটা রাখো।</p></div>
-        <div class="step"><h3>ফাইলে ট্যাপ করো</h3><p>ফাইল ম্যানেজার খুলে <b>BanglaBrowser-1.1.04.apk</b>-তে ট্যাপ করো।</p></div>
+        <div class="step"><h3>ফাইলে ট্যাপ করো</h3><p>ফাইল ম্যানেজার খুলে <b>BanglaBrowser-1.2.apk</b>-তে ট্যাপ করো।</p></div>
         <div class="step"><h3>Install চাপো</h3><p>Android অচেনা সোর্সের অনুমতি চাইলে "Allow" দাও, তারপর Install।</p></div>
       </div>
       <p class="note">পুরোনো ভার্সন থাকলে মুছতে হবে না। নতুন APK পুরোনোটার উপর বসবে, বুকমার্ক আর ইতিহাস অটুট থাকবে।</p>
+
+      <div class="note" style="background:#eef6ff;border-color:#cfe3fb">
+        <b>ইনস্টলের সময় Play Protect "Scan app" চাইলে</b><br>
+        Play Store-এর বাইরের APK-তে Android মাঝে মাঝে স্ক্যান করতে বলে। এটা অ্যাপের দোষ নয়।
+        <br>১. <b>Scan</b> চাপো, ইন্টারনেট থাকলে কয়েক সেকেন্ডে শেষ হয়।
+        <br>২. তারপর <b>Install</b> চাপো।
+        <br>৩. "Unsafe app blocked" এলে <b>More details</b> → <b>Install anyway</b>।
+        <br>প্রতিবার না চাইলে: Play Store → Play Protect → ⚙ → Scan apps with Play Protect বন্ধ করো। শুধু নিজের ফোনে প্রযোজ্য।
+      </div>
     </div>
   </section>
 
@@ -293,12 +314,19 @@
       <details><summary>ফোনে কোনো তথ্য পাঠায় কি?</summary><p>না। কোনো অ্যানালিটিক্স নেই। বুকমার্ক, ইতিহাস আর সেটিংস শুধু তোমার ফোনেই থাকে।</p></details>
       <details><summary>কোন Android ভার্সনে চলবে?</summary><p>Android 5.0 (API 21) আর তার পরের সব ভার্সনে।</p></details>
                   <details><summary>সোর্স কোড কি সবার জন্য খোলা?</summary><p>হ্যাঁ। কোড <a href="https://github.com/Mamun015/bangla-browser">GitHub</a>-এ MPL-2.0 লাইসেন্সে প্রকাশিত। কেউ কোড দেখতে, ব্যবহার করতে বা বদলাতে পারে; বদলানো ফাইলও একই লাইসেন্সে খোলা রাখতে হবে, তাই কেউ কোডটা বন্ধ করে নিজের বলে চালাতে পারবে না। অ্যাপের নাম ও আইকন আলাদা, সেগুলো কেউ ব্যবহার করতে পারবে না।</p></details>
+      <details><summary>ইনস্টলে Play Protect স্ক্যান চায় কেন?</summary><p>ফাইলটা Play Store থেকে আসেনি, আর অ্যাপটার সাইনিং কী Google-এর কাছে নতুন। একবার ইনস্টল হলে পরের আপডেটগুলো সাধারণত চুপচাপ বসে যায়। স্ক্যান চাইলে Scan চেপে Install দাও, কোডটা GitHub-এ খোলা, কেউ লুকিয়ে কিছু চালাতে পারবে না।</p></details>
       <details><summary>আপডেট করলে বুকমার্ক হারাবে?</summary><p>না। একই সাইনিং কী দিয়ে সাইন করা, তাই নতুন APK পুরোনো অ্যাপের উপর ইনস্টল হয় আর ডেটা থাকে।</p></details>
     </div>
   </section>
 </main>
 
 <footer>
+  <div class="wrap" style="padding-bottom:6px">
+    <p style="margin:0 0 10px;font-size:13.5px;color:var(--muted)">
+      বাংলা ব্রাউজারের সোর্স কোড <a href="https://github.com/Mamun015/bangla-browser">GitHub রিপোজিটরিতে</a> খোলা,
+      আর সর্বশেষ APK <a href="https://github.com/Mamun015/bangla-browser/releases">রিলিজ পেজে</a>।
+    </p>
+  </div>
   <div class="wrap foot-in">
     <p>© ২০২৬ বাংলা ব্রাউজার · নির্মাতা <a href="https://github.com/Mamun015">Mamun (@Mamun015)</a> · MPL-2.0 · <span class="made">Made in Bangladesh</span></p>
     <div class="foot-links">

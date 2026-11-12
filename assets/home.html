@@ -55,6 +55,7 @@
   }
   .tile:active{transform:scale(.96)}
   .tile .ico{font-size:21px;line-height:1;height:22px}
+  .tile .fav{width:26px;height:26px;border-radius:8px;display:block;object-fit:contain}
   .tile .nm{font-size:10.5px;color:var(--muted);text-align:center;line-height:1.25}
   .recent a{
     display:block;padding:13px 0;border-bottom:1px solid var(--line);
@@ -88,7 +89,7 @@
   </form>
 
   <h2>প্রিয় সাইট</h2>
-  <div class="tiles">
+  <div class="tiles" id="tiles">
     <a class="tile" href="https://www.prothomalo.com"><span class="ico">📰</span><span class="nm">প্রথম আলো</span></a>
     <a class="tile" href="https://www.kalerkantho.com"><span class="ico">🗞️</span><span class="nm">কালের কণ্ঠ</span></a>
     <a class="tile" href="https://bangla.bdnews24.com"><span class="ico">📻</span><span class="nm">বিডিনিউজ</span></a>
@@ -104,7 +105,7 @@
     <p class="empty" id="empty">এখনো কিছু দেখা হয়নি। উপরের বাক্সে লিখে শুরু করুন।</p>
   </div>
 
-  <footer>বাংলা ব্রাউজার <b>১.১.০৪</b> · Made in Bangladesh</footer>
+  <footer>বাংলা ব্রাউজার <b>১.২</b> · Made in Bangladesh</footer>
 
 <script>
   if (location.hash === "#dark") document.documentElement.className = "dark";
@@ -114,6 +115,37 @@
     if (!q) return;
     location.href = "bangla://search?q=" + encodeURIComponent(q);
   }
+
+  window.setSites = function (list) {
+    if (!list || !list.length) return;
+    var box = document.getElementById("tiles");
+    if (!box) return;
+    box.innerHTML = "";
+    for (var i = 0; i < list.length; i++) {
+      var s = list[i];
+      var a = document.createElement("a");
+      a.className = "tile";
+      a.href = s.u;
+      var host = "";
+      try { host = new URL(s.u).hostname.replace(/^www\./, ""); } catch (e) { }
+      var img = document.createElement("img");
+      img.className = "fav";
+      img.alt = "";
+      img.src = "https://www.google.com/s2/favicons?sz=64&domain=" + encodeURIComponent(host);
+      img.onerror = function () {
+        var fb = document.createElement("span");
+        fb.className = "ico";
+        fb.textContent = "🌐";
+        if (this.parentNode) this.parentNode.replaceChild(fb, this);
+      };
+      a.appendChild(img);
+      var nm = document.createElement("span");
+      nm.className = "nm";
+      nm.textContent = s.n;
+      a.appendChild(nm);
+      box.appendChild(a);
+    }
+  };
 
   window.setRecent = function (items) {
     if (!items || !items.length) return;

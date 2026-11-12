@@ -52,12 +52,12 @@ public class MainActivity extends Activity {
     private static final String PREFS = "bangla_browser";
     private static final String UA_DESKTOP =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
-    private static final int MAX_TABS = 8;
+    private static final int MAX_TABS = 32;
 
     private WebView current;
     private EditText urlBar;
     private ProgressBar progress;
-    private TextView btnBack, btnForward, btnStar, pageTitle, tabBadge;
+    private TextView btnBack, btnForward, pageTitle, tabBadge;
     private LinearLayout rootView, bottomBar;
     private FrameLayout screen, holder;
     private SharedPreferences prefs;
@@ -209,6 +209,11 @@ public class MainActivity extends Activity {
             current.goBack();
             return;
         }
+        if (tabs.size() > 1) {
+            closeTab(activeIndex);
+            toast("ট্যাব বন্ধ হয়েছে");
+            return;
+        }
         long now = System.currentTimeMillis();
         if (now - lastBackPress < 2000) {
             super.onBackPressed();
@@ -238,7 +243,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private int dp(float v) {
+    int dp(float v) {
         return (int) (v * getResources().getDisplayMetrics().density + 0.5f);
     }
 
@@ -416,9 +421,6 @@ public class MainActivity extends Activity {
                 current.loadUrl(homeUrl());
             }
         });
-        btnStar = navItem("☆", "বুকমার্ক", new Runnable() {
-            public void run() { toggleBookmark(); }
-        });
         navItem("▣", "ট্যাব", new Runnable() {
             public void run() { showTabSwitcher(); }
         });
@@ -469,9 +471,6 @@ public class MainActivity extends Activity {
         if (current == null) return;
         btnBack.setAlpha(current.canGoBack() ? 1f : 0.3f);
         btnForward.setAlpha(current.canGoForward() ? 1f : 0.3f);
-        boolean marked = isBookmarked(current.getUrl());
-        btnStar.setText(marked ? "★" : "☆");
-        btnStar.setTextColor(marked ? cAccent : cText);
         updateTabBadge();
     }
 
@@ -714,13 +713,24 @@ public class MainActivity extends Activity {
         list.addView(menuRow("➕", "নতুন ট্যাব", null, new Runnable() {
             public void run() { newTab(homeUrl(), true); }
         }));
+        boolean marked = current != null && isBookmarked(current.getUrl());
+        list.addView(menuRow(marked ? "★" : "☆",
+                marked ? "বুকমার্ক সরান" : "এই পেজ বুকমার্ক করুন", null, new Runnable() {
+                    public void run() { toggleBookmark(); }
+                }));
         list.addView(menuRow("⭐", "বুকমার্ক", String.valueOf(loadList("bookmarks").size()), new Runnable() {
             public void run() { showList("বুকমার্ক", "bookmarks", true); }
         }));
-        list.addView(menuRow("🕘", "ইতিহাস", null, new Runnable() {
-            public void run() { showList("ইতিহাস", "history", true); }
+        list.addView(menuRow("🕘", "ইতিহাস", String.valueOf(loadList("history").size()), new Runnable() {
+            public void run() { showHistory(); }
         }));
-        list.addView(menuRow("⬇️", "ডাউনলোড", null, new Runnable() {
+        list.addView(menuRow("🏠", "প্রিয় সাইট", String.valueOf(loadSites().size()), new Runnable() {
+            public void run() { showSiteEditor(); }
+        }));
+        int running = Downloader.activeCount();
+        list.addView(menuRow("⬇️", "ডাউনলোড",
+                running > 0 ? running + " চলছে"
+                        : String.valueOf(downloadRecords().length()), new Runnable() {
             public void run() { showDownloads(); }
         }));
         list.addView(menuRow("📤", "শেয়ার", null, new Runnable() {
@@ -785,7 +795,7 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             }
         }));
-        list.addView(menuRow("ℹ️", "অ্যাপ সম্পর্কে", "১.১.০৪", new Runnable() {
+        list.addView(menuRow("ℹ️", "অ্যাপ সম্পর্কে", "১.২", new Runnable() {
             public void run() { about(); }
         }));
 
@@ -905,7 +915,7 @@ public class MainActivity extends Activity {
         texts.addView(name);
 
         TextView sub = new TextView(this);
-        sub.setText("সংস্করণ ১.১.০৪");
+        sub.setText("সংস্করণ ১.২");
         sub.setTextSize(11);
         sub.setTextColor(cMuted);
         texts.addView(sub);
@@ -923,115 +933,675 @@ public class MainActivity extends Activity {
 
     // ---------------------------------------------------------------- downloads
 
+    private JSONArray downloadRecords() {
+        try {
+            return new JSONArray(prefs.getString("downloads", "[]"));
+        } catch (Exception e) {
+            return new JSONArray();
+        }
+    }
+
+    void addDownloadRecord(String name, String uri, String mime, long size) {
+        try {
+            JSONArray old = downloadRecords();
+            JSONObject o = new JSONObject();
+            o.put("n", name);
+            o.put("u", uri);
+            o.put("m", mime);
+            o.put("s", size);
+            o.put("t", System.currentTimeMillis());
+            JSONArray out = new JSONArray();
+            out.put(o);
+            for (int i = 0; i < old.length() && i < 99; i++) out.put(old.get(i));
+            prefs.edit().putString("downloads", out.toString()).apply();
+        } catch (Exception ignored) { }
+    }
+
+    String refererFor(String url) {
+        try {
+            if (current != null && isRealPage(current.getUrl())) return current.getUrl();
+        } catch (Exception ignored) { }
+        return null;
+    }
+
+    private static class ActiveRow {
+        Downloader.Task task;
+        ProgressBar bar;
+        TextView detail;
+    }
+
+    private final java.util.List<ActiveRow> activeRows = new java.util.ArrayList<>();
+    private final android.os.Handler dlHandler = new android.os.Handler(
+            android.os.Looper.getMainLooper());
+    private LinearLayout dlHost;
+
     private void showDownloads() {
-        final android.app.DownloadManager dm =
-                (android.app.DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        FrameLayout box = new FrameLayout(this);
+        box.setBackgroundColor(cBg);
 
-        final FrameLayout box = new FrameLayout(this);
-        box.setBackgroundColor(0x66000000);
-        box.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) { closeOverlay(); }
+        LinearLayout panel = fullPanel("ডাউনলোড", new View.OnClickListener() {
+            public void onClick(View v) {
+                dialog().setTitle("তালিকা মুছবেন?")
+                        .setMessage("শুধু তালিকা থেকে মুছে যাবে, ফোনে নামানো ফাইল থাকবে।")
+                        .setPositiveButton("মুছুন", (d, w) -> {
+                            prefs.edit().putString("downloads", "[]").apply();
+                            closeOverlay();
+                            showDownloads();
+                        })
+                        .setNegativeButton("না", null).show();
+            }
         });
 
-        LinearLayout sheet = new LinearLayout(this);
-        sheet.setOrientation(LinearLayout.VERTICAL);
-        sheet.setBackground(sheetBg());
-        sheet.setPadding(dp(8), dp(8), dp(8), dp(16));
-        sheet.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) { }
+        ScrollView scroll = new ScrollView(this);
+        LinearLayout rows = new LinearLayout(this);
+        rows.setOrientation(LinearLayout.VERTICAL);
+        rows.setPadding(dp(6), 0, dp(6), dp(20));
+        scroll.addView(rows);
+
+        panel.addView(scroll, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        box.addView(panel, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        openOverlay(box);
+
+        renderDownloads(rows);
+        startDownloadTicker(rows);
+    }
+
+    private void renderDownloads(LinearLayout host) {
+        host.removeAllViews();
+        activeRows.clear();
+
+        java.util.List<Downloader.Task> active = Downloader.active();
+        if (!active.isEmpty()) {
+            host.addView(sectionLabel("চলছে (" + active.size() + ")"));
+            for (Downloader.Task t : active) host.addView(activeRow(t));
+        }
+
+        JSONArray arr = downloadRecords();
+        if (arr.length() > 0) {
+            host.addView(sectionLabel("সম্পন্ন"));
+            for (int i = 0; i < arr.length() && i < 100; i++) {
+                try {
+                    JSONObject o = arr.getJSONObject(i);
+                    host.addView(recordRow(o.optString("n", "ফাইল"),
+                            o.optString("u", ""), o.optString("m", ""),
+                            o.optLong("s", 0)));
+                } catch (Exception ignored) { }
+            }
+        }
+
+        if (active.isEmpty() && arr.length() == 0) {
+            TextView empty = new TextView(this);
+            empty.setText("এখনো কোনো ডাউনলোড নেই।\nকোনো পেজ থেকে ফাইল নামালে সেটা এখানে দেখা যাবে।");
+            empty.setTextSize(13);
+            empty.setTextColor(cMuted);
+            empty.setGravity(Gravity.CENTER);
+            empty.setPadding(dp(16), dp(60), dp(16), dp(20));
+            host.addView(empty);
+        }
+    }
+
+    private View activeRow(final Downloader.Task task) {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(12), dp(10), dp(12), dp(10));
+
+        LinearLayout top = new LinearLayout(this);
+        top.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView name = new TextView(this);
+        name.setText(task.name);
+        name.setTextSize(14);
+        name.setTextColor(cText);
+        name.setSingleLine(true);
+        name.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+        top.addView(name, new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView cancel = glyphButton("✕", 14, cMuted);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Downloader.cancel(task);
+                toast("ডাউনলোড বাতিল হচ্ছে");
+            }
         });
+        top.addView(cancel);
+        box.addView(top);
+
+        ProgressBar bar = new ProgressBar(this, null,
+                android.R.attr.progressBarStyleHorizontal);
+        bar.setMax(1000);
+        if (Build.VERSION.SDK_INT >= 21) {
+            bar.setProgressTintList(ColorStateList.valueOf(cAccent));
+        }
+        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(6));
+        blp.topMargin = dp(9);
+        box.addView(bar, blp);
+
+        TextView detail = new TextView(this);
+        detail.setTextSize(11.5f);
+        detail.setTextColor(cMuted);
+        detail.setPadding(0, dp(7), 0, 0);
+        detail.setText(downloadLine(task));
+        box.addView(detail);
+
+        ActiveRow holder = new ActiveRow();
+        holder.task = task;
+        holder.bar = bar;
+        holder.detail = detail;
+        activeRows.add(holder);
+
+        LinearLayout wrap = new LinearLayout(this);
+        wrap.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams wlp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        wlp.setMargins(dp(6), dp(2), dp(6), dp(6));
+        wrap.setBackground(roundedBorder(cSurface, 13));
+        wrap.addView(box, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        wrap.setLayoutParams(wlp);
+        return wrap;
+    }
+
+    private String downloadLine(Downloader.Task t) {
+        if (t.total > 0) {
+            long left = Math.max(0, t.total - t.done);
+            return Downloader.sizeText(t.done) + " / " + Downloader.sizeText(t.total)
+                    + " · " + t.percent() + "% · " + Downloader.sizeText(t.speed)
+                    + "/s · বাকি " + Downloader.sizeText(left);
+        }
+        return Downloader.sizeText(t.done) + " · " + Downloader.sizeText(t.speed) + "/s";
+    }
+
+    private void startDownloadTicker(final LinearLayout host) {
+        dlHost = host;
+        dlHandler.removeCallbacksAndMessages(null);
+        dlHandler.postDelayed(new Runnable() {
+            public void run() {
+                if (overlay == null || dlHost != host) return;
+                java.util.List<Downloader.Task> active = Downloader.active();
+                boolean same = active.size() == activeRows.size();
+                if (same) {
+                    for (int i = 0; i < active.size(); i++) {
+                        if (activeRows.get(i).task != active.get(i)) {
+                            same = false;
+                            break;
+                        }
+                    }
+                }
+                if (!same) {
+                    renderDownloads(host);
+                } else {
+                    for (ActiveRow row : activeRows) {
+                        row.bar.setProgress((int) (row.task.percent() * 10));
+                        row.detail.setText(downloadLine(row.task));
+                    }
+                }
+                if (!Downloader.active().isEmpty()) {
+                    dlHandler.postDelayed(this, 500);
+                }
+            }
+        }, 400);
+    }
+
+    private View recordRow(final String name, final String uri, final String mime, long size) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(12), dp(8), dp(12), dp(8));
+        ripple(row);
+
+        LinearLayout tile = new LinearLayout(this);
+        tile.setGravity(Gravity.CENTER);
+        tile.setBackground(rounded(cSurface, 11));
+        TextView ico = new TextView(this);
+        ico.setText(iconFor(mime, name));
+        ico.setTextSize(18);
+        ico.setGravity(Gravity.CENTER);
+        tile.addView(ico, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        row.addView(tile, new LinearLayout.LayoutParams(dp(36), dp(36)));
+
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        texts.setPadding(dp(14), 0, 0, 0);
+
+        TextView nameView = new TextView(this);
+        nameView.setText(name);
+        nameView.setTextSize(14);
+        nameView.setTextColor(cText);
+        nameView.setSingleLine(true);
+        nameView.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+        texts.addView(nameView);
+
+        TextView sub = new TextView(this);
+        sub.setText("সম্পন্ন" + (size > 0 ? " · " + Downloader.sizeText(size) : ""));
+        sub.setTextSize(11);
+        sub.setTextColor(cMuted);
+        texts.addView(sub);
+
+        row.addView(texts, new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        row.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (uri.length() == 0) {
+                    toast("ফাইলটা পাওয়া যায়নি");
+                    return;
+                }
+                try {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setDataAndType(Uri.parse(uri), mime.length() == 0 ? "*/*" : mime);
+                    i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(i);
+                } catch (Exception e) {
+                    toast("ফাইল খোলার মতো অ্যাপ নেই");
+                }
+            }
+        });
+        return row;
+    }
+
+    // ---------------------------------------------------------------- history
+
+    private String shortTitle(String title, String url) {
+        String t = title == null ? "" : title.replace('\n', ' ').replace('\r', ' ')
+                .replaceAll("\\s+", " ").trim();
+        if (t.length() == 0 || t.startsWith("http://") || t.startsWith("https://")
+                || t.equals("about:blank")) {
+            String h = Favicon.hostOf(url);
+            return h.length() == 0 ? prettyUrl(url) : h;
+        }
+        if (t.length() > 70) t = t.substring(0, 70).trim() + "…";
+        return t;
+    }
+
+    private View entryRow(String title, final String url,
+                          final View.OnClickListener onTap,
+                          final View.OnLongClickListener onLong) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(16), dp(9), dp(14), dp(9));
+        ripple(row);
+
+        ImageView icon = new ImageView(this);
+        icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        Favicon.bind(this, url, icon, cAccent, Color.WHITE);
+        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(dp(30), dp(30));
+        ilp.rightMargin = dp(14);
+        row.addView(icon, ilp);
+
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+
+        TextView t = new TextView(this);
+        t.setText(shortTitle(title, url));
+        t.setTextSize(13.5f);
+        t.setTextColor(cText);
+        t.setTypeface(Typeface.DEFAULT_BOLD);
+        t.setSingleLine(true);
+        t.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        texts.addView(t);
+
+        TextView u = new TextView(this);
+        u.setText(prettyUrl(url));
+        u.setTextSize(11);
+        u.setTextColor(cMuted);
+        u.setSingleLine(true);
+        u.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+        u.setPadding(0, dp(2), 0, 0);
+        texts.addView(u);
+
+        row.addView(texts, new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        if (onTap != null) row.setOnClickListener(onTap);
+        if (onLong != null) row.setOnLongClickListener(onLong);
+        return row;
+    }
+
+    private LinearLayout fullPanel(String titleText, View.OnClickListener extra) {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setBackgroundColor(cBg);
 
         LinearLayout head = new LinearLayout(this);
         head.setGravity(Gravity.CENTER_VERTICAL);
-        head.setPadding(dp(14), dp(8), dp(8), dp(10));
+        head.setPadding(dp(18), dp(16), dp(10), dp(8));
 
         TextView title = new TextView(this);
-        title.setText("ডাউনলোড");
-        title.setTextSize(16);
+        title.setText(titleText);
+        title.setTextSize(17);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         title.setTextColor(cText);
         head.addView(title, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        if (extra != null) {
+            TextView more = glyphButton("⋮", 18, cMuted);
+            more.setPadding(dp(12), dp(6), dp(12), dp(6));
+            more.setOnClickListener(extra);
+            head.addView(more);
+        }
 
         TextView close = glyphButton("✕", 16, cMuted);
         close.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) { closeOverlay(); }
         });
         head.addView(close);
-        sheet.addView(head);
+        panel.addView(head);
+        return panel;
+    }
 
-        ScrollView scroll = new ScrollView(this);
-        LinearLayout list = new LinearLayout(this);
-        list.setOrientation(LinearLayout.VERTICAL);
+    private void showHistory() {
+        final List<String[]> items = loadList("history");
 
-        int count = 0;
-        Cursor c = null;
-        try {
-            if (dm != null) {
-                c = dm.query(new android.app.DownloadManager.Query());
-                while (c != null && c.moveToNext() && count < 60) {
-                    long id = c.getLong(c.getColumnIndexOrThrow(
-                            android.app.DownloadManager.COLUMN_ID));
-                    String name = c.getString(c.getColumnIndexOrThrow(
-                            android.app.DownloadManager.COLUMN_TITLE));
-                    String mime = c.getString(c.getColumnIndexOrThrow(
-                            android.app.DownloadManager.COLUMN_MEDIA_TYPE));
-                    int status = c.getInt(c.getColumnIndexOrThrow(
-                            android.app.DownloadManager.COLUMN_STATUS));
-                    long total = c.getLong(c.getColumnIndexOrThrow(
-                            android.app.DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-                    long done = c.getLong(c.getColumnIndexOrThrow(
-                            android.app.DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-
-                    if (name == null || name.length() == 0) name = "ফাইল " + id;
-                    String meta = downloadStatus(status, done, total);
-                    if (total > 0) meta = meta + " · " + sizeText(total);
-
-                    list.addView(downloadRow(iconFor(mime, name), name, meta, id, mime,
-                            status == android.app.DownloadManager.STATUS_SUCCESSFUL));
-                    count++;
-                }
-            }
-        } catch (Exception ignored) {
-        } finally {
-            if (c != null) c.close();
-        }
-
-        if (count == 0) {
-            TextView empty = new TextView(this);
-            empty.setText("এখনো কোনো ডাউনলোড নেই।\nকোনো পেজ থেকে ফাইল নামালে সেটা এখানে দেখা যাবে।");
-            empty.setTextSize(13);
-            empty.setTextColor(cMuted);
-            empty.setGravity(Gravity.CENTER);
-            empty.setPadding(dp(16), dp(28), dp(16), dp(28));
-            list.addView(empty);
-        }
-
-        scroll.addView(list);
-        sheet.addView(scroll);
-
-        final ScrollView dScroll = scroll;
-        final LinearLayout dList = list;
-        scroll.post(new Runnable() {
-            public void run() {
-                int max = (int) (getResources().getDisplayMetrics().heightPixels * 0.72f);
-                if (dList.getHeight() > max) {
-                    ViewGroup.LayoutParams lp = dScroll.getLayoutParams();
-                    lp.height = max;
-                    dScroll.setLayoutParams(lp);
-                }
+        LinearLayout panel = fullPanel("ইতিহাস (" + items.size() + ")", new View.OnClickListener() {
+            public void onClick(View v) {
+                dialog().setTitle("ইতিহাস মুছবেন?")
+                        .setPositiveButton("মুছুন", (d, w) -> {
+                            saveList("history", new ArrayList<>());
+                            closeOverlay();
+                            showHistory();
+                        })
+                        .setNegativeButton("না", null).show();
             }
         });
 
-        FrameLayout.LayoutParams slp = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        slp.gravity = Gravity.BOTTOM;
-        box.addView(sheet, slp);
+        ScrollView scroll = new ScrollView(this);
+        LinearLayout rows = new LinearLayout(this);
+        rows.setOrientation(LinearLayout.VERTICAL);
+        rows.setPadding(0, 0, 0, dp(20));
 
+        if (items.isEmpty()) {
+            TextView empty = new TextView(this);
+            empty.setText("ইতিহাস খালি।\nকোনো সাইটে গেলে সেটা এখানে জমা হবে।");
+            empty.setTextSize(13);
+            empty.setTextColor(cMuted);
+            empty.setGravity(Gravity.CENTER);
+            empty.setPadding(dp(16), dp(60), dp(16), dp(20));
+            rows.addView(empty);
+        }
+
+        for (int i = 0; i < items.size(); i++) {
+            final String title = items.get(i)[0];
+            final String url = items.get(i)[1];
+            rows.addView(entryRow(title, url, new View.OnClickListener() {
+                public void onClick(View v) {
+                    closeOverlay();
+                    if (current != null) current.loadUrl(url);
+                }
+            }, new View.OnLongClickListener() {
+                public boolean onLongClick(View v) {
+                    dialog().setTitle(shortTitle(title, url))
+                            .setItems(new String[]{"নতুন ট্যাবে খুলুন", "লিংক কপি", "ইতিহাস থেকে মুছুন"},
+                                    (d, which) -> {
+                                        if (which == 0) {
+                                            newTab(url, true);
+                                        } else if (which == 1) {
+                                            android.content.ClipboardManager cb =
+                                                    (android.content.ClipboardManager)
+                                                            getSystemService(CLIPBOARD_SERVICE);
+                                            cb.setPrimaryClip(android.content.ClipData
+                                                    .newPlainText("লিংক", url));
+                                            toast("লিংক কপি হয়েছে");
+                                        } else {
+                                            removeHistory(url);
+                                            closeOverlay();
+                                            showHistory();
+                                        }
+                                    })
+                            .show();
+                    return true;
+                }
+            }));
+        }
+
+        scroll.addView(rows);
+        panel.addView(scroll, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        FrameLayout box = new FrameLayout(this);
+        box.setBackgroundColor(cBg);
+        box.addView(panel, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         openOverlay(box);
-        sheet.setTranslationY(dp(40));
-        sheet.setAlpha(0f);
-        sheet.animate().translationY(0).alpha(1f).setDuration(180).start();
+    }
+
+    private void removeHistory(String url) {
+        List<String[]> h = loadList("history");
+        for (int i = h.size() - 1; i >= 0; i--) {
+            if (h.get(i)[1].equals(url)) h.remove(i);
+        }
+        saveList("history", h);
+    }
+
+    // ---------------------------------------------------------------- favourite sites
+
+    private List<String[]> defaultSites() {
+        List<String[]> s = new ArrayList<>();
+        s.add(new String[]{"প্রথম আলো", "https://www.prothomalo.com"});
+        s.add(new String[]{"কালের কণ্ঠ", "https://www.kalerkantho.com"});
+        s.add(new String[]{"বিডিনিউজ২৪", "https://bangla.bdnews24.com"});
+        s.add(new String[]{"উইকিপিডিয়া", "https://bn.wikipedia.org"});
+        s.add(new String[]{"ইউটিউব", "https://m.youtube.com"});
+        s.add(new String[]{"ফেসবুক", "https://m.facebook.com"});
+        s.add(new String[]{"জিমেইল", "https://mail.google.com"});
+        s.add(new String[]{"বাংলানিউজ", "https://www.banglanews24.com"});
+        return s;
+    }
+
+    private List<String[]> loadSites() {
+        if (prefs.getString("sites", "").length() == 0) {
+            List<String[]> d = defaultSites();
+            saveList("sites", d);
+            return d;
+        }
+        List<String[]> s = loadList("sites");
+        if (s.isEmpty()) {
+            s = defaultSites();
+            saveList("sites", s);
+        }
+        return s;
+    }
+
+    private void injectSites(WebView view) {
+        if (view == null) return;
+        JSONArray arr = new JSONArray();
+        for (String[] s : loadSites()) {
+            try {
+                JSONObject o = new JSONObject();
+                o.put("n", s[0]);
+                o.put("u", s[1]);
+                arr.put(o);
+            } catch (Exception ignored) { }
+        }
+        view.evaluateJavascript("window.setSites && window.setSites(" + arr.toString() + ");", null);
+    }
+
+    private void showSiteEditor() {
+        final List<String[]> sites = loadSites();
+
+        LinearLayout panel = fullPanel("প্রিয় সাইট", new View.OnClickListener() {
+            public void onClick(View v) {
+                dialog().setTitle("ডিফল্ট তালিকায় ফিরবেন?")
+                        .setPositiveButton("ফিরিয়ে আনো", (d, w) -> {
+                            saveList("sites", defaultSites());
+                            closeOverlay();
+                            showSiteEditor();
+                            if (current != null) injectSites(current);
+                        })
+                        .setNegativeButton("না", null).show();
+            }
+        });
+
+        ScrollView scroll = new ScrollView(this);
+        LinearLayout rows = new LinearLayout(this);
+        rows.setOrientation(LinearLayout.VERTICAL);
+
+        for (int i = 0; i < sites.size(); i++) {
+            final int idx = i;
+            final String name = sites.get(i)[0];
+            final String url = sites.get(i)[1];
+
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setPadding(dp(16), dp(7), dp(8), dp(7));
+
+            ImageView icon = new ImageView(this);
+            icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            Favicon.bind(this, url, icon, cAccent, Color.WHITE);
+            LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(dp(30), dp(30));
+            ilp.rightMargin = dp(12);
+            row.addView(icon, ilp);
+
+            LinearLayout texts = new LinearLayout(this);
+            texts.setOrientation(LinearLayout.VERTICAL);
+
+            TextView t = new TextView(this);
+            t.setText(name);
+            t.setTextSize(14);
+            t.setTextColor(cText);
+            t.setSingleLine(true);
+            t.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            texts.addView(t);
+
+            TextView u = new TextView(this);
+            u.setText(prettyUrl(url));
+            u.setTextSize(11);
+            u.setTextColor(cMuted);
+            u.setSingleLine(true);
+            u.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+            texts.addView(u);
+
+            row.addView(texts, new LinearLayout.LayoutParams(0,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+            row.addView(smallButton(i == 0 ? "" : "▲", new Runnable() {
+                public void run() { moveSite(idx, -1); }
+            }));
+            row.addView(smallButton(i == sites.size() - 1 ? "" : "▼", new Runnable() {
+                public void run() { moveSite(idx, 1); }
+            }));
+            row.addView(smallButton("✕", new Runnable() {
+                public void run() {
+                    List<String[]> now = loadSites();
+                    if (idx < now.size()) now.remove(idx);
+                    saveList("sites", now);
+                    closeOverlay();
+                    showSiteEditor();
+                    if (current != null) injectSites(current);
+                }
+            }));
+            row.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    closeOverlay();
+                    if (current != null) current.loadUrl(url);
+                }
+            });
+            rows.addView(row);
+        }
+
+        scroll.addView(rows);
+        panel.addView(scroll, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        LinearLayout add = new LinearLayout(this);
+        add.setGravity(Gravity.CENTER);
+        add.setPadding(dp(16), dp(10), dp(16), dp(22));
+        add.setBackground(rounded(cSurface, 16));
+        TextView plus = new TextView(this);
+        plus.setText("+ নতুন সাইট যোগ করুন");
+        plus.setTextSize(14);
+        plus.setTypeface(Typeface.DEFAULT_BOLD);
+        plus.setTextColor(cAccent);
+        plus.setGravity(Gravity.CENTER);
+        plus.setPadding(0, dp(12), 0, dp(12));
+        add.addView(plus);
+        add.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { addSiteDialog(); }
+        });
+        panel.addView(add);
+
+        FrameLayout box = new FrameLayout(this);
+        box.setBackgroundColor(cBg);
+        box.addView(panel, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        openOverlay(box);
+    }
+
+    private TextView smallButton(String glyph, final Runnable action) {
+        TextView t = new TextView(this);
+        t.setText(glyph);
+        t.setTextSize(13);
+        t.setTextColor(glyph.length() == 0 ? cBg : cMuted);
+        t.setGravity(Gravity.CENTER);
+        t.setPadding(dp(10), dp(8), dp(10), dp(8));
+        ripple(t);
+        if (glyph.length() > 0) {
+            t.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) { action.run(); }
+            });
+        }
+        return t;
+    }
+
+    private void moveSite(int index, int dir) {
+        List<String[]> sites = loadSites();
+        int target = index + dir;
+        if (index < 0 || index >= sites.size() || target < 0 || target >= sites.size()) return;
+        String[] a = sites.get(index);
+        sites.set(index, sites.get(target));
+        sites.set(target, a);
+        saveList("sites", sites);
+        closeOverlay();
+        showSiteEditor();
+        if (current != null) injectSites(current);
+    }
+
+    private void addSiteDialog() {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(22), dp(10), dp(22), 0);
+
+        final EditText name = new EditText(this);
+        name.setHint("নাম (যেমন প্রথম আলো)");
+        name.setSingleLine(true);
+        box.addView(name);
+
+        final EditText url = new EditText(this);
+        url.setHint("ঠিকানা (prothomalo.com)");
+        url.setSingleLine(true);
+        url.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
+        box.addView(url);
+
+        dialog().setTitle("নতুন সাইট")
+                .setView(box)
+                .setPositiveButton("যোগ করুন", (d, w) -> {
+                    String n = name.getText().toString().trim();
+                    String u = url.getText().toString().trim();
+                    if (u.length() == 0) {
+                        toast("সাইটের ঠিকানা লিখো");
+                        return;
+                    }
+                    if (!u.startsWith("http://") && !u.startsWith("https://")) {
+                        u = "https://" + u;
+                    }
+                    if (n.length() == 0) n = Favicon.hostOf(u);
+                    List<String[]> sites = loadSites();
+                    sites.add(new String[]{n, u});
+                    saveList("sites", sites);
+                    closeOverlay();
+                    showSiteEditor();
+                    if (current != null) injectSites(current);
+                })
+                .setNegativeButton("বাতিল", null)
+                .show();
     }
 
     private String iconFor(String mime, String name) {
@@ -1045,94 +1615,6 @@ public class MainActivity extends Activity {
         if (m.contains("zip") || m.contains("compressed") || n.endsWith(".zip")
                 || n.endsWith(".apk")) return "🗜️";
         return "📄";
-    }
-
-    private String downloadStatus(int status, long done, long total) {
-        if (status == android.app.DownloadManager.STATUS_SUCCESSFUL) return "সম্পন্ন";
-        if (status == android.app.DownloadManager.STATUS_FAILED) return "ব্যর্থ";
-        if (status == android.app.DownloadManager.STATUS_PAUSED) return "থেমে আছে";
-        if (total > 0) return "চলছে " + (done * 100 / total) + "%";
-        return "চলছে";
-    }
-
-    private String sizeText(long bytes) {
-        if (bytes <= 0) return "";
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024L * 1024L) return (bytes / 1024) + " KB";
-        if (bytes < 1024L * 1024L * 1024L) {
-            return String.format(java.util.Locale.US, "%.1f MB", bytes / 1048576.0);
-        }
-        return String.format(java.util.Locale.US, "%.1f GB", bytes / 1073741824.0);
-    }
-
-    private View downloadRow(String icon, String name, String meta, final long id,
-                             final String mime, final boolean openable) {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(dp(10), dp(8), dp(12), dp(8));
-        ripple(row);
-
-        LinearLayout tile = new LinearLayout(this);
-        tile.setGravity(Gravity.CENTER);
-        tile.setBackground(rounded(cSurface, 11));
-        TextView ico = new TextView(this);
-        ico.setText(icon);
-        ico.setTextSize(18);
-        ico.setGravity(Gravity.CENTER);
-        tile.addView(ico, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        row.addView(tile, new LinearLayout.LayoutParams(dp(36), dp(36)));
-
-        LinearLayout texts = new LinearLayout(this);
-        texts.setOrientation(LinearLayout.VERTICAL);
-        texts.setPadding(dp(14), 0, 0, 0);
-
-        TextView title = new TextView(this);
-        title.setText(name);
-        title.setTextSize(14);
-        title.setTextColor(cText);
-        title.setSingleLine(true);
-        title.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
-        texts.addView(title);
-
-        TextView sub = new TextView(this);
-        sub.setText(meta);
-        sub.setTextSize(11);
-        sub.setTextColor(cMuted);
-        texts.addView(sub);
-
-        row.addView(texts, new LinearLayout.LayoutParams(0,
-                ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-        row.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (!openable) {
-                    toast("ফাইলটা এখনো নামছে");
-                    return;
-                }
-                openDownload(id, mime);
-            }
-        });
-        return row;
-    }
-
-    private void openDownload(long id, String mime) {
-        try {
-            android.app.DownloadManager dm =
-                    (android.app.DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-            Uri u = dm.getUriForDownloadedFile(id);
-            if (u == null) {
-                toast("ফাইলটা পাওয়া যায়নি");
-                return;
-            }
-            Intent i = new Intent(Intent.ACTION_VIEW);
-            i.setDataAndType(u, mime == null || mime.length() == 0 ? "*/*" : mime);
-            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(i);
-        } catch (Exception e) {
-            toast("ফাইল খোলার মতো অ্যাপ নেই");
-        }
     }
 
     // ---------------------------------------------------------------- default browser
@@ -1264,6 +1746,8 @@ public class MainActivity extends Activity {
     }
 
     private void closeOverlay() {
+        dlHandler.removeCallbacksAndMessages(null);
+        dlHost = null;
         if (overlay != null) {
             screen.removeView(overlay);
             overlay = null;
@@ -1336,7 +1820,10 @@ public class MainActivity extends Activity {
                 progress.setVisibility(View.GONE);
                 if (view == current) updateNavButtons();
                 if (isRealPage(url)) addHistory(t == null ? null : t.title, url);
-                if (url != null && url.startsWith(HOME_URL)) injectRecent(view);
+                if (url != null && url.startsWith(HOME_URL)) {
+                    injectSites(view);
+                    injectRecent(view);
+                }
             }
 
             @Override
@@ -1413,19 +1900,7 @@ public class MainActivity extends Activity {
 
         web.setDownloadListener(new DownloadListener() {
             public void onDownloadStart(String url, String ua, String cd, String mime, long len) {
-                try {
-                    android.app.DownloadManager.Request req =
-                            new android.app.DownloadManager.Request(Uri.parse(url));
-                    req.setMimeType(mime);
-                    req.setNotificationVisibility(
-                            android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                    req.setDestinationInExternalPublicDir(android.os.Environment.DIRECTORY_DOWNLOADS,
-                            android.webkit.URLUtil.guessFileName(url, cd, mime));
-                    ((android.app.DownloadManager) getSystemService(DOWNLOAD_SERVICE)).enqueue(req);
-                    toast("ডাউনলোড শুরু হয়েছে");
-                } catch (Exception e) {
-                    toast("ডাউনলোড করা যায়নি");
-                }
+                Downloader.start(MainActivity.this, url, ua, cd, mime, len);
             }
         });
 
@@ -1621,8 +2096,8 @@ public class MainActivity extends Activity {
     private void addHistory(String title, String url) {
         List<String[]> h = loadList("history");
         for (int i = h.size() - 1; i >= 0; i--) if (h.get(i)[1].equals(url)) h.remove(i);
-        h.add(0, new String[]{title == null || title.length() == 0 ? url : title, url});
-        while (h.size() > 40) h.remove(h.size() - 1);
+        h.add(0, new String[]{shortTitle(title, url), url});
+        while (h.size() > 200) h.remove(h.size() - 1);
         saveList("history", h);
     }
 
@@ -1696,7 +2171,7 @@ public class MainActivity extends Activity {
     }
 
     private void about() {
-        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.১.০৪\n\n"
+        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.২\n\n"
                 + "সহজ, দ্রুত ও সম্পূর্ণ বাংলা ব্রাউজার।\n"
                 + "ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড — সব একসাথে।\n\n"
                 + "নির্মাতা\n"

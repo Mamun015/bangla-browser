@@ -197,7 +197,7 @@ public class SettingsActivity extends Activity {
                 }
             }
         }));
-        list.addView(row("ℹ", "সংস্করণ", "১.১.০৪", null));
+        list.addView(row("ℹ", "সংস্করণ", "১.২", null));
         list.addView(row("🔗", "সোর্স কোড", "GitHub", new Runnable() {
             public void run() {
                 try {
