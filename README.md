@@ -14,7 +14,7 @@ WebView based. No ads. No tracking. About 125 KB.
 [Build](#build-from-source)
 
 ![Android 5.0+](https://img.shields.io/badge/Android-5.0%2B-3ddc84?logo=android&logoColor=white)
-![Version](https://img.shields.io/badge/version-1.2.1-006a4e)
+![Version](https://img.shields.io/badge/version-1.2.1.12-006a4e)
 ![License](https://img.shields.io/badge/license-MPL--2.0-blue)
 ![Size](https://img.shields.io/badge/APK-125%20KB-lightgrey)
 
@@ -53,7 +53,7 @@ WebView based. No ads. No tracking. About 125 KB.
 
 ## Install
 
-1. Download **[BanglaBrowser-1.2.apk](https://github.com/Mamun015/bangla-browser/releases/latest)**.
+1. Download **[BanglaBrowser-1.2.1.12.apk](https://github.com/Mamun015/bangla-browser/releases/latest)**.
 2. Tap the file in your phone's Downloads folder.
 3. Allow installs from this source when Android asks, then tap **Install**.
 
@@ -79,7 +79,7 @@ Requirements:
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 bash build.sh
 ```
 
-Output: `BanglaBrowser-1.2.apk`. See [BUILD.md](BUILD.md) for details. The signing key (`keystore.jks`) is not in the repository; generate your own to build a fork.
+Output: `BanglaBrowser-1.2.1.12.apk`. See [BUILD.md](BUILD.md) for details. The signing key (`keystore.jks`) is not in the repository; generate your own to build a fork.
 
 ## FAQ
 

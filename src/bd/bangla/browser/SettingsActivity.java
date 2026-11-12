@@ -38,7 +38,7 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
-        darkMode = prefs.getBoolean("dark", false);
+        darkMode = themeIsDark();
         pickColors();
 
         if (Build.VERSION.SDK_INT >= 21) {
@@ -156,7 +156,9 @@ public class SettingsActivity extends Activity {
         }));
 
         list.addView(section("চেহারা"));
-        list.addView(switchRow("☾", "রাতের মোড", prefs.getBoolean("dark", false), "dark"));
+        list.addView(row("☾", "থিম", themeName(), new Runnable() {
+            public void run() { pickTheme(); }
+        }));
         list.addView(switchRow("🖥", "ডেস্কটপ সাইট", prefs.getBoolean("desktop", false), "desktop"));
 
         list.addView(section("ব্রাউজিং"));
@@ -362,6 +364,52 @@ public class SettingsActivity extends Activity {
                     prefs.edit().putInt("textzoom", values[which]).apply();
                     d.dismiss();
                     refresh();
+                })
+                .show();
+    }
+
+    // ---------------------------------------------------------------- থিম
+
+    private static final String T_SYSTEM = "system", T_DARK = "dark", T_FORCE = "force";
+
+    private String themeKey() {
+        String t = prefs.getString("theme", null);
+        if (t == null) {
+            t = prefs.getBoolean("forcedark", false) ? T_FORCE
+                    : (prefs.getBoolean("dark", false) ? T_DARK : T_SYSTEM);
+            prefs.edit().putString("theme", t).apply();
+        }
+        return t;
+    }
+
+    private boolean themeIsDark() {
+        String t = themeKey();
+        if (T_FORCE.equals(t) || T_DARK.equals(t)) return true;
+        return (getResources().getConfiguration().uiMode
+                & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    private String themeName() {
+        String t = themeKey();
+        if (T_FORCE.equals(t)) return "জোর করে কালো";
+        if (T_DARK.equals(t)) return "রাতের মোড";
+        return "সিস্টেম সেটিং";
+    }
+
+    private void pickTheme() {
+        final String[] names = {"সিস্টেম সেটিং অনুযায়ী", "রাতের মোড", "জোর করে কালো"};
+        final String[] keys = {T_SYSTEM, T_DARK, T_FORCE};
+        int checked = 0;
+        String cur = themeKey();
+        for (int i = 0; i < keys.length; i++) if (keys[i].equals(cur)) checked = i;
+        new AlertDialog.Builder(this, darkMode ? android.R.style.Theme_Material_Dialog_Alert
+                : android.R.style.Theme_Material_Light_Dialog_Alert)
+                .setTitle("থিম")
+                .setSingleChoiceItems(names, checked, (d, which) -> {
+                    prefs.edit().putString("theme", keys[which]).apply();
+                    d.dismiss();
+                    recreate();
                 })
                 .show();
     }

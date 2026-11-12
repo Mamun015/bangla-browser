@@ -2,9 +2,11 @@ package bd.bangla.browser;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -34,7 +36,9 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.CompoundButton;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,7 +56,7 @@ public class MainActivity extends Activity {
     private static final String HOME_URL = "file:///android_asset/home.html";
     private static final String PREFS = "bangla_browser";
     private boolean autoTranslate = true;
-    private String translateJs;
+    private final java.util.HashMap<String, String> assetCache = new java.util.HashMap<String, String>();
     private static final String UA_DESKTOP =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
     private static final int MAX_TABS = 32;
@@ -60,7 +64,7 @@ public class MainActivity extends Activity {
     private WebView current;
     private EditText urlBar;
     private ProgressBar progress;
-    private TextView btnBack, btnForward, pageTitle, tabBadge;
+    private TextView btnBack, btnForward, pageTitle, tabBadge, navTabLabel;
     private LinearLayout rootView, bottomBar;
     private FrameLayout screen, holder;
     private SharedPreferences prefs;
@@ -69,7 +73,7 @@ public class MainActivity extends Activity {
     private final List<Tab> tabs = new ArrayList<>();
     private int activeIndex = 0;
 
-    private boolean darkMode, desktopMode;
+    private boolean darkMode, desktopMode, forceDark;
     private String uaMobile;
     private int cBg, cSurface, cText, cMuted, cAccent, cLine;
     private long lastBackPress = 0;
@@ -89,14 +93,81 @@ public class MainActivity extends Activity {
 
     // ---------------------------------------------------------------- lifecycle
 
+    // থিমের তিনটে রকম: ফোনের সেটিং মানা / সবসময় রাত / জোর করে সব কালো
+    private static final String T_SYSTEM = "system", T_DARK = "dark", T_FORCE = "force";
+
+    /** পুরনো ভার্সনের দুই সুইচ (dark / forcedark) থেকে থিম সেটিংয়ে উত্তরণ */
+    private static String themeKey(SharedPreferences p) {
+        String t = p.getString("theme", null);
+        if (t == null) {
+            t = p.getBoolean("forcedark", false) ? T_FORCE
+                    : (p.getBoolean("dark", false) ? T_DARK : T_SYSTEM);
+            p.edit().putString("theme", t).apply();
+        }
+        return t;
+    }
+
+    private String themeKey() {
+        return themeKey(prefs);
+    }
+
+    private boolean themeIsDark() {
+        String t = themeKey();
+        return T_FORCE.equals(t) || T_DARK.equals(t) || (T_SYSTEM.equals(t) && systemDark);
+    }
+
+    private String themeName() {
+        String t = themeKey();
+        if (T_FORCE.equals(t)) return "জোর করে কালো";
+        if (T_DARK.equals(t)) return "রাতের মোড";
+        return "সিস্টেম সেটিং";
+    }
+
+    private void pickTheme() {
+        final String[] names = {"সিস্টেম সেটিং অনুযায়ী", "রাতের মোড", "জোর করে কালো"};
+        final String[] keys = {T_SYSTEM, T_DARK, T_FORCE};
+        int checked = 0;
+        String cur = themeKey();
+        for (int i = 0; i < keys.length; i++) if (keys[i].equals(cur)) checked = i;
+        dialog().setTitle("থিম")
+                .setSingleChoiceItems(names, checked, (d, which) -> {
+                    prefs.edit().putString("theme", keys[which]).apply();
+                    d.dismiss();
+                    recreate();
+                })
+                .show();
+    }
+
+    /** ফোনের সিস্টেম ডার্ক মোড চালু কি না — আসল কনফিগ থেকেই নেওয়া হয় */
+    private boolean systemDark;
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        SharedPreferences p = base.getSharedPreferences(PREFS, MODE_PRIVATE);
+        String t = themeKey(p);
+        int baseMode = base.getResources().getConfiguration().uiMode;
+        boolean sys = (baseMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        boolean dark = T_FORCE.equals(t) || T_DARK.equals(t) || (T_SYSTEM.equals(t) && sys);
+        boolean force = T_FORCE.equals(t);
+        Configuration cfg = new Configuration(base.getResources().getConfiguration());
+        int mode = (dark && !force) ? Configuration.UI_MODE_NIGHT_YES
+                                    : Configuration.UI_MODE_NIGHT_NO;
+        cfg.uiMode = (cfg.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | mode;
+        super.attachBaseContext(base.createConfigurationContext(cfg));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
-        darkMode = prefs.getBoolean("dark", false);
+        systemDark = (getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        darkMode = themeIsDark();
         desktopMode = prefs.getBoolean("desktop", false);
+        forceDark = T_FORCE.equals(themeKey());
         autoTranslate = prefs.getBoolean("autotranslate", true);
         pickColors();
+        syncYouTubeTheme();
 
         if (Build.VERSION.SDK_INT >= 21) {
             Window w = getWindow();
@@ -167,9 +238,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        boolean dark = prefs.getBoolean("dark", false);
+        boolean dark = themeIsDark();
+        boolean force = T_FORCE.equals(themeKey());
         boolean desk = prefs.getBoolean("desktop", false);
-        if (dark != darkMode) {
+        if (dark != darkMode || force != forceDark) {
             recreate();
             return;
         }
@@ -346,7 +418,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) { showTabSwitcher(); }
         });
 
-        topBar.addView(titleRow);
+        // উপরের নাম-সারি বাদ: শুধু ঠিকানার বার আর নিচের বার
 
         // address row
         LinearLayout addrPill = new LinearLayout(this);
@@ -355,7 +427,6 @@ public class MainActivity extends Activity {
         addrPill.setBackground(roundedBorder(cSurface, 24));
         LinearLayout.LayoutParams pl = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        pl.topMargin = dp(8);
 
         TextView lock = new TextView(this);
         lock.setText("🔒");
@@ -430,9 +501,10 @@ public class MainActivity extends Activity {
                 current.loadUrl(homeUrl());
             }
         });
-        navItem("▣", "ট্যাব", new Runnable() {
+        LinearLayout tabBox = navItemBox("▣", "ট্যাব", new Runnable() {
             public void run() { showTabSwitcher(); }
         });
+        navTabLabel = (TextView) tabBox.getChildAt(1);
         navItem("⋮", "মেনু", new Runnable() {
             public void run() { showMenu(); }
         });
@@ -447,6 +519,10 @@ public class MainActivity extends Activity {
     }
 
     private TextView navItem(String glyph, String label, final Runnable action) {
+        return (TextView) navItemBox(glyph, label, action).getChildAt(0);
+    }
+
+    private LinearLayout navItemBox(String glyph, String label, final Runnable action) {
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
         box.setGravity(Gravity.CENTER);
@@ -473,7 +549,7 @@ public class MainActivity extends Activity {
 
         bottomBar.addView(box, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        return g;
+        return box;
     }
 
     private void updateNavButtons() {
@@ -485,6 +561,9 @@ public class MainActivity extends Activity {
 
     private void updateTabBadge() {
         tabBadge.setText(String.valueOf(tabs.size()));
+        if (navTabLabel != null) {
+            navTabLabel.setText(tabs.size() > 1 ? "ট্যাব " + tabs.size() : "ট্যাব");
+        }
     }
 
     // ---------------------------------------------------------------- tabs
@@ -767,31 +846,24 @@ public class MainActivity extends Activity {
             public void run() { printPage(); }
         }));
 
-        list.addView(toggleRow(desktopMode ? "🖥️" : "📱",
-                "ডেস্কটপ সাইট", desktopMode, new Runnable() {
-                    public void run() {
-                        desktopMode = !desktopMode;
-                        prefs.edit().putBoolean("desktop", desktopMode).apply();
-                        applySettings();
-                        if (current != null) current.reload();
-                        showMenu();
-                    }
-                }));
-
-        list.addView(toggleRow(darkMode ? "🌙" : "☀️", "রাতের মোড", darkMode, new Runnable() {
-            public void run() {
-                darkMode = !darkMode;
-                prefs.edit().putBoolean("dark", darkMode).apply();
-                recreate();
+        list.addView(toggleRow("🖥️", "ডেস্কটপ সাইট", desktopMode, new OnToggle() {
+            public void onChange(boolean on) {
+                desktopMode = on;
+                prefs.edit().putBoolean("desktop", desktopMode).apply();
+                applySettings();
+                if (current != null) current.reload();
             }
         }));
 
-        list.addView(toggleRow("🅰️", "বাংলায় অনুবাদ", autoTranslate, new Runnable() {
-            public void run() {
-                autoTranslate = !autoTranslate;
+        list.addView(menuRow(darkMode ? "🌙" : "☀️", "থিম", themeName(), new Runnable() {
+            public void run() { pickTheme(); }
+        }));
+
+        list.addView(toggleRow("🅰️", "বাংলায় অনুবাদ", autoTranslate, new OnToggle() {
+            public void onChange(boolean on) {
+                autoTranslate = on;
                 prefs.edit().putBoolean("autotranslate", autoTranslate).apply();
                 if (current != null) current.reload();
-                showMenu();
             }
         }));
 
@@ -813,7 +885,7 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             }
         }));
-        list.addView(menuRow("ℹ️", "অ্যাপ সম্পর্কে", "১.২.১", new Runnable() {
+        list.addView(menuRow("ℹ️", "অ্যাপ সম্পর্কে", "১.২.১.১২", new Runnable() {
             public void run() { about(); }
         }));
 
@@ -856,15 +928,26 @@ public class MainActivity extends Activity {
     }
 
     private View menuRow(String icon, String label, String value, final Runnable action) {
+        LinearLayout row = rowShell(icon, label, value);
+        if (action != null) {
+            row.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    closeOverlay();
+                    action.run();
+                }
+            });
+        }
+        return row;
+    }
+
+    private LinearLayout rowShell(String icon, String label, String value) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(dp(10), dp(8), dp(12), dp(8));
-        if (action != null) {
-            TypedValue tv = new TypedValue();
-            getTheme().resolveAttribute(android.R.attr.selectableItemBackground, tv, true);
-            if (tv.resourceId != 0) row.setBackgroundResource(tv.resourceId);
-        }
+        TypedValue tv = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.selectableItemBackground, tv, true);
+        if (tv.resourceId != 0) row.setBackgroundResource(tv.resourceId);
 
         LinearLayout tile = new LinearLayout(this);
         tile.setGravity(Gravity.CENTER);
@@ -894,19 +977,32 @@ public class MainActivity extends Activity {
             row.addView(val);
         }
 
-        if (action != null) {
-            row.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    closeOverlay();
-                    action.run();
-                }
-            });
-        }
         return row;
     }
 
-    private View toggleRow(String icon, String label, boolean on, final Runnable action) {
-        return menuRow(icon, label, on ? "চালু" : "বন্ধ", action);
+    private interface OnToggle {
+        void onChange(boolean checked);
+    }
+
+    /** সেটিংসের মতো আসল সুইচ: শিট বন্ধ বা রিফ্রেশ হয় না। */
+    private View toggleRow(String icon, String label, boolean on, final OnToggle action) {
+        final LinearLayout row = rowShell(icon, label, null);
+        final Switch sw = new Switch(this);
+        sw.setTag("bb_switch");
+        sw.setChecked(on);
+        if (Build.VERSION.SDK_INT >= 21) {
+            sw.setThumbTintList(ColorStateList.valueOf(cAccent));
+        }
+        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton b, boolean checked) {
+                action.onChange(checked);
+            }
+        });
+        row.addView(sw);
+        row.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { sw.toggle(); }
+        });
+        return row;
     }
 
     private View sheetHeader() {
@@ -933,7 +1029,7 @@ public class MainActivity extends Activity {
         texts.addView(name);
 
         TextView sub = new TextView(this);
-        sub.setText("সংস্করণ ১.২.১");
+        sub.setText("সংস্করণ ১.২.১.১২");
         sub.setTextSize(11);
         sub.setTextColor(cMuted);
         texts.addView(sub);
@@ -1843,7 +1939,10 @@ public class MainActivity extends Activity {
                     injectSites(view);
                     injectRecent(view);
                 }
-                if (autoTranslate && isRealPage(url)) injectTranslate(view);
+                if (isRealPage(url)) {
+                    if (autoTranslate) injectTranslate(view);
+                    if (darkMode) injectDark(view);
+                }
             }
 
             @Override
@@ -2190,22 +2289,80 @@ public class MainActivity extends Activity {
         b.setPositiveButton("বন্ধ", null).show();
     }
 
-    private void injectTranslate(WebView view) {
-        if (!prefs.getBoolean("js", true)) return;
-        if (translateJs == null) {
-            try {
-                java.io.InputStream in = getAssets().open("translate.js");
-                java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
-                in.close();
-                translateJs = new String(out.toByteArray(), "UTF-8");
-            } catch (Exception e) {
-                return;
-            }
+    private String asset(String name) {
+        String cached = assetCache.get(name);
+        if (cached != null) return cached;
+        try {
+            java.io.InputStream in = getAssets().open(name);
+            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+            in.close();
+            String js = new String(out.toByteArray(), "UTF-8");
+            assetCache.put(name, js);
+            return js;
+        } catch (Exception e) {
+            return null;
         }
-        view.evaluateJavascript(translateJs, null);
+    }
+
+    private void injectJs(WebView view, String name) {
+        if (!prefs.getBoolean("js", true)) return;
+        String js = asset(name);
+        if (js != null) view.evaluateJavascript(js, null);
+    }
+
+    private void injectTranslate(WebView view) {
+        injectJs(view, "translate.js");
+    }
+
+    /** ইউটিউবের নিজের ডার্ক/লাইট থিম ঠিক হয় তার PREF কুকি থেকে।
+        রাতের মোডে কুকিতে ডার্ক বসিয়ে দিই, তাই ইউটিউব নিজের আসল কালো থিমে আসে।
+        জোর করে কালোতে বরং লাইট করে দিই, কারণ পুরো পেজ আমরা উল্টে দিই। */
+    private void syncYouTubeTheme() {
+        try {
+            String f6 = null;
+            if (darkMode && !forceDark) f6 = "400";   // ইউটিউব ডার্ক
+            else if (forceDark) f6 = "8";             // ইউটিউব লাইট, তারপর আমরা উল্টাব
+            if (f6 == null) return;
+
+            android.webkit.CookieManager cm = android.webkit.CookieManager.getInstance();
+            cm.setAcceptCookie(true);
+            String cur = cm.getCookie("https://www.youtube.com");
+            String val = "f6=" + f6;
+            if (cur != null && cur.contains("PREF=")) {
+                String pref = null;
+                for (String p : cur.split(";\\s*")) {
+                    if (p.startsWith("PREF=")) pref = p.substring(5);
+                }
+                if (pref != null && pref.length() > 0) {
+                    StringBuilder sb = new StringBuilder();
+                    boolean has = false;
+                    for (String kv : pref.split("&")) {
+                        if (kv.length() == 0) continue;
+                        if (kv.startsWith("f6=")) { kv = "f6=" + f6; has = true; }
+                        if (sb.length() > 0) sb.append('&');
+                        sb.append(kv);
+                    }
+                    if (!has) { if (sb.length() > 0) sb.append('&'); sb.append("f6=").append(f6); }
+                    val = sb.toString();
+                }
+            }
+            String cookie = "PREF=" + val + "; Domain=.youtube.com; Path=/; Secure";
+            cm.setCookie("https://www.youtube.com", cookie);
+            cm.setCookie("https://m.youtube.com", cookie);
+            cm.flush();
+        } catch (Exception e) { /* কুকি না বসালেও বাকি কাজ চলবে */ }
+    }
+
+    private void injectDark(WebView view) {
+        if (!prefs.getBoolean("js", true)) return;
+        String js = asset("dark.js");
+        if (js == null) return;
+        // জোর করে কালো: সাইটের নিজের ডার্ক থিম বাদ দিয়ে সব পেজ উল্টে দেওয়া হবে
+        view.evaluateJavascript(
+                "window.__bbForceDark=" + (forceDark ? "1" : "0") + ";" + js, null);
     }
 
     /** সাইটের CSP-তে আটকে গেলে অনুবাদ এই ব্রিজ দিয়ে আনা হয়। */
@@ -2237,7 +2394,7 @@ public class MainActivity extends Activity {
     }
 
     private void about() {
-        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.২.১\n\n"
+        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.২.১.১২\n\n"
                 + "সহজ, দ্রুত ও সম্পূর্ণ বাংলা ব্রাউজার।\n"
                 + "ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড — সব একসাথে।\n"
                 + "ইংরেজি পেজ নিজে থেকেই বাংলায় অনুবাদ হয়ে যায়।\n\n"
