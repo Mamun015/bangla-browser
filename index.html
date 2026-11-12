@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="google-site-verification" content="VvvKrPlpBMTaPSt0qZbsMQRBtVzHeEQvF33vfzHtnF4" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>বাংলা ব্রাউজার (Bangla Browser) — Free Bengali Browser for Android</title>
-<meta name="description" content="Download বাংলা ব্রাউজার, a free, fast and light Android browser with a full Bengali interface. Tabs, bookmarks, history, dark mode. No ads, no tracking. APK 121 KB, MPL-2.0 license.">
-<meta name="keywords" content="Bangla Browser, বাংলা ব্রাউজার, Bengali browser, Bengali browser for Android, Android browser, Bangla APK, বাংলা অ্যাপ, ব্রাউজার, WebView browser, Bengali app download">
+<title>বাংলা ব্রাউজার (Bangla Browser) — যেকোনো পেজ অটো বাংলায়, Free Bengali Browser for Android</title>
+<meta name="description" content="বাংলা ব্রাউজার: a free, light Android browser with a full Bengali interface that translates any English web page into Bengali automatically. 32 tabs, bookmarks, history, dark mode, built-in downloader. No ads, no tracking. 125 KB APK, MPL-2.0.">
+<meta name="keywords" content="Bangla Browser, বাংলা ব্রাউজার, Bengali browser, Bengali browser for Android, Android browser, auto translate Bengali, English to Bangla browser, বাংলা অনুবাদ ব্রাউজার, Bangla APK, বাংলা অ্যাপ, ব্রাউজার, Bengali app download">
 <meta name="author" content="Mamun (@Mamun015)">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <meta name="googlebot" content="index, follow, max-image-preview:large">
@@ -18,15 +18,15 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Bangla Browser">
 <meta property="og:title" content="বাংলা ব্রাউজার — Bangla Browser for Android">
-<meta property="og:description" content="A free, fast Android browser with a full Bengali interface. Tabs, bookmarks, dark mode. No ads, no tracking. Download the 121 KB APK.">
+<meta property="og:description" content="A free, light Android browser with a full Bengali interface — and every English page turns into Bengali by itself. No ads, no tracking. 125 KB APK.">
 <meta property="og:url" content="https://mamun015.github.io/bangla-browser/">
 <meta property="og:image" content="https://mamun015.github.io/bangla-browser/screenshot.png">
-<meta property="og:image:alt" content="বাংলা ব্রাউজার অ্যাপের চারটি স্ক্রিনশট">
+<meta property="og:image:alt" content="বাংলা ব্রাউজার অ্যাপের স্ক্রিনশট — হোম পেজ, মেনু, সেটিংস, অ্যাপ সম্পর্কে আর অটো বাংলা অনুবাদ">
 <meta property="og:locale" content="bn_BD">
 <meta property="og:locale:alternate" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="বাংলা ব্রাউজার — Bangla Browser for Android">
-<meta name="twitter:description" content="A free, fast Android browser with a full Bengali interface. No ads, no tracking.">
+<meta name="twitter:description" content="A free Android browser with a full Bengali interface that turns every English page into Bengali automatically. No ads, no tracking.">
 <meta name="twitter:image" content="https://mamun015.github.io/bangla-browser/screenshot.png">
 
 <script type="application/ld+json">
@@ -41,8 +41,8 @@
   "applicationCategory": "BrowserApplication",
   "applicationSubCategory": "Web Browser",
   "operatingSystem": "Android 5.0 and newer",
-  "softwareVersion": "1.2",
-  "fileSize": "121KB",
+  "softwareVersion": "1.2.1",
+  "fileSize": "125KB",
   "inLanguage": "bn",
   "license": "https://mozilla.org/MPL/2.0/",
   "isAccessibleForFree": true,
@@ -51,10 +51,12 @@
   "screenshot": "https://mamun015.github.io/bangla-browser/screenshot.png",
   "featureList": [
     "Full Bengali interface",
+    "Automatic Bengali translation of any English web page",
     "Up to 32 tabs with a tab switcher",
     "Bookmarks and history",
     "Dark mode",
-    "Downloads and file uploads",
+    "Built-in downloader with live progress",
+    "Editable favourite sites",
     "Session restore"
   ]
 }
@@ -83,6 +85,11 @@
       "@type": "Question",
       "name": "Which Android versions are supported?",
       "acceptedAnswer": { "@type": "Answer", "text": "Android 5.0 (API 21) and newer." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Bangla Browser translate English websites into Bengali?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every English page is translated into Bengali automatically, by default. A switch in the menu and in Settings turns it off." }
     }
   ]
 }
@@ -170,7 +177,7 @@
   h2 { font-size: clamp(24px, 3.4vw, 32px); margin: 0 0 8px; letter-spacing: -.3px; }
   .sub { color: var(--muted); margin: 0 0 28px; max-width: 46em; }
 
-  .shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
   .shots img { width: 100%; height: auto; display: block; border-radius: 18px;
     box-shadow: 0 16px 34px rgba(0,0,0,.45); background: #0b0d0c; }
   @media (max-width: 900px) {
@@ -180,6 +187,27 @@
   }
   @media (max-width: 430px) { .shots img { flex: 0 0 82%; width: 82%; } }
   .cap { font-size: 13px; color: var(--muted); margin-top: 12px; text-align: center; }
+
+  .hl { background: linear-gradient(135deg, var(--green-dark), var(--green)); color: #fff;
+    border-radius: 24px; padding: 34px 34px 30px; box-shadow: var(--shadow); }
+  .hl .badge { display: inline-block; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3);
+    font-size: 12.5px; font-weight: 700; padding: 5px 12px; border-radius: 999px; }
+  .hl h2 { margin: 14px 0 10px; font-size: 30px; line-height: 1.3; }
+  .hl p { margin: 0; font-size: 16px; color: #d9ece6; max-width: 760px; }
+  .hl-demo { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; margin-top: 22px; }
+  .hl-demo .box { background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.2);
+    border-radius: 14px; padding: 14px 16px; font-size: 14.5px; line-height: 1.55; }
+  .hl-demo .lbl { font-size: 11.5px; font-weight: 800; letter-spacing: .3px; opacity: .72; margin-bottom: 6px; }
+  .hl-demo .arrow { font-size: 20px; opacity: .8; }
+  @media (max-width: 760px) {
+    .hl { padding: 26px 20px 24px; border-radius: 20px; }
+    .hl h2 { font-size: 23px; }
+    .hl-demo { grid-template-columns: 1fr; gap: 10px; }
+    .hl-demo .arrow { text-align: center; transform: rotate(90deg); }
+  }
+  .new-tag { display: inline-block; background: #eaf3ef; color: var(--green); font-size: 11px;
+    font-weight: 800; padding: 2px 9px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+  .feature.hot { border-color: #bfe0d4; background: linear-gradient(180deg,#f2fbf7,#fff); }
 
   .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   @media (max-width: 860px) { .features { grid-template-columns: repeat(2, 1fr); } }
@@ -224,6 +252,7 @@
     <img src="icon.png" alt="Bangla Browser icon">
     <span class="name">বাংলা ব্রাউজার</span>
     <span class="spacer"></span>
+    <a class="link hide-sm" href="#translate">অনুবাদ</a>
     <a class="link hide-sm" href="#features">ফিচার</a>
     <a class="link hide-sm" href="#install">ইনস্টল</a>
     <a class="link hide-sm" href="#faq">প্রশ্ন</a>
@@ -237,15 +266,16 @@
       <div>
         <span class="kicker">Free · Open source · No ads</span>
         <h1>বাংলা ব্রাউজার<br><span>দ্রুত, হালকা, পুরোটাই বাংলায়</span></h1>
-        <p class="lede">A free Android browser built for Bengali readers. Tabs, bookmarks, history, dark mode and a home page with your favourite Bangla sites. <b>About 100 KB, no ads, no tracking.</b></p>
+        <p class="lede">বাংলা পাঠকের জন্য বানানো ফ্রি অ্যান্ড্রয়েড ব্রাউজার — আর এখন <b>যেকোনো ইংরেজি পেজ নিজে থেকেই বাংলায়</b> হয়ে যায়। ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড, ডাউনলোডার — সব একসাথে। বিজ্ঞাপন নেই, ট্র্যাকিং নেই।</p>
         <div class="cta">
           <a class="btn primary" href="https://github.com/Mamun015/bangla-browser/releases/latest">⬇ APK ডাউনলোড</a>
           <a class="btn ghost" href="https://github.com/Mamun015/bangla-browser">সোর্স কোড</a>
         </div>
         <div class="chips">
-          <span class="chip">সংস্করণ ১.২</span>
+          <span class="chip">সংস্করণ ১.২.১</span>
+          <span class="chip">অটো বাংলা অনুবাদ</span>
           <span class="chip">Android 5.0+</span>
-          <span class="chip">১০৫ কিলোবাইট</span>
+          <span class="chip">১২৫ কিলোবাইট</span>
           <span class="chip">MPL-2.0 লাইসেন্স</span>
         </div>
       </div>
@@ -255,42 +285,61 @@
     </div>
   </div>
 
-  <section class="alt" id="screenshots">
+  <section class="alt" id="translate">
+    <div class="wrap">
+      <div class="hl">
+        <span class="badge">নতুন · সংস্করণ ১.২.১</span>
+        <h2>ইংরেজি সাইটও এখন বাংলায়, নিজে থেকেই</h2>
+        <p>যেকোনো ইংরেজি ওয়েবসাইট খুললেই লেখা আপনা-আপনি বাংলায় বদলে যায়। আলাদা করে কিছু চাপতে হয় না, অন্য অ্যাপও লাগে না। লেখা ধাপে ধাপে বদলায়, তাই পেজ আটকে থাকে না। চাইলে মেনু থেকে এক ট্যাপে বন্ধ করা যায়, আবার সেটিংস থেকেও।</p>
+        <div class="hl-demo">
+          <div class="box"><div class="lbl">আগে</div>The government announced a new plan for rural Internet access and cheaper smartphones.</div>
+          <div class="arrow">→</div>
+          <div class="box"><div class="lbl">এখন</div>সরকার গ্রামীণ ইন্টারনেট সুবিধা ও সস্তা স্মার্টফোনের জন্য নতুন পরিকল্পনা ঘোষণা করেছে।</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screenshots">
     <div class="wrap">
       <h2>অ্যাপের ভেতরে</h2>
-      <p class="sub">হোম পেজ, Edge-স্টাইল মেনু, সেটিংস আর অ্যাপ সম্পর্কে — এক নজরে।</p>
+      <p class="sub">হোম পেজ, মেনু, সেটিংস, অ্যাপ সম্পর্কে আর অটো অনুবাদ — এক নজরে।</p>
       <div class="shots">
         <img src="shot-1.png" alt="বাংলা ব্রাউজারের হোম পেজ" loading="lazy">
         <img src="shot-2.png" alt="নিচ থেকে ওঠা মেনু" loading="lazy">
         <img src="shot-3.png" alt="সেটিংস স্ক্রিন" loading="lazy">
         <img src="shot-4.png" alt="অ্যাপ সম্পর্কে ডায়ালগ" loading="lazy">
+        <img src="shot-5.png" alt="ইংরেজি সাইট বাংলায় অনুবাদ হয়ে দেখাচ্ছে" loading="lazy">
       </div>
-      <p class="cap">বাংলা ব্রাউজার ১.২ · Android · ছোট স্ক্রিনে পাশে সোয়াইপ করো</p>
+      <p class="cap">বাংলা ব্রাউজার ১.২.১ · Android · ছোট স্ক্রিনে পাশে সোয়াইপ করো</p>
     </div>
   </section>
 
-  <section id="features">
+  <section class="alt" id="features">
     <div class="wrap">
       <h2>কী কী আছে</h2>
       <p class="sub">দৈনন্দিন ব্রাউজিংয়ের জন্য যা দরকার, অপ্রয়োজনীয় কিছু ছাড়া।</p>
       <div class="features">
+        <div class="feature hot"><span class="ico">🅰️</span><h3>অটো বাংলা অনুবাদ<span class="new-tag">নতুন</span></h3><p>ইংরেজি পেজ খুললেই লেখা বাংলায়। ডিফল্টে চালু, চাইলে বন্ধ — এক ট্যাপে।</p></div>
         <div class="feature"><span class="ico">🇧🇩</span><h3>সম্পূর্ণ বাংলা</h3><p>প্রতিটি বাটন, মেনু আর বার্তা বাংলায়। ইংরেজি জানা না থাকলেও চালানো যায়।</p></div>
         <div class="feature"><span class="ico">🗂️</span><h3>৩২টা পর্যন্ত ট্যাব</h3><p>Chrome-এর মতো ট্যাব সুইচার। উপরের সংখ্যায় চাপ দিলেই সব ট্যাবের তালিকা।</p></div>
         <div class="feature"><span class="ico">⭐</span><h3>বুকমার্ক ও ইতিহাস</h3><p>পছন্দের পেজ সেভ থাকে ফোনেই। এক ট্যাপে পুরোনো ইতিহাসে ফেরা যায়।</p></div>
         <div class="feature"><span class="ico">🌙</span><h3>রাতের মোড</h3><p>রাতে চোখের আরামের জন্য পুরো অ্যাপ আর হোম পেজ কালো হয়ে যায়।</p></div>
         <div class="feature"><span class="ico">⚙️</span><h3>সেটিংস</h3><p>সার্চ ইঞ্জিন, লেখার আকার, জাভাস্ক্রিপ্ট, ছবি লোড — সব নিজের মতো সেট করা যায়।</p></div>
-        <div class="feature"><span class="ico">⬇️</span><h3>ডাউনলোড ও আপলোড</h3><p>ফাইল নামানো যায়, ফেসবুকে ছবি দেওয়ার মতো আপলোডও কাজ করে।</p></div>
+        <div class="feature"><span class="ico">⬇️</span><h3>নিজস্ব ডাউনলোডার</h3><p>কুকি আর ব্রাউজারের পরিচয় পাঠায়, তাই যেসব সাইট আগে ফাইল দিত না তারাও দেয়। লাইভ স্পিড, শতাংশ আর বাতিল বাটন।</p></div>
+        <div class="feature"><span class="ico">🧩</span><h3>প্রিয় সাইট নিজের মতো</h3><p>হোম পেজের সাইটগুলো নিজে যোগ, মুছে বা সাজানো যায় — প্রতিটার আসল আইকনসহ।</p></div>
+        <div class="feature"><span class="ico">🕘</span><h3>পূর্ণ ইতিহাস</h3><p>পুরো স্ক্রিনের তালিকা, প্রতিটা পেজের আসল আইকন আর ছোট নাম। ২০০টা এন্ট্রি জমা থাকে।</p></div>
       </div>
     </div>
   </section>
 
-  <section class="alt" id="install">
+  <section id="install">
     <div class="wrap">
       <h2>ইনস্টল করবেন যেভাবে</h2>
       <p class="sub">Play Store লাগবে না। ফোনে সরাসরি APK ইনস্টল করা যায়।</p>
       <div class="steps">
         <div class="step"><h3>APK নামাও</h3><p>উপরের ডাউনলোড বাটনে চাপ দিয়ে ফোনের Downloads ফোল্ডারে ফাইলটা রাখো।</p></div>
-        <div class="step"><h3>ফাইলে ট্যাপ করো</h3><p>ফাইল ম্যানেজার খুলে <b>BanglaBrowser-1.2.apk</b>-তে ট্যাপ করো।</p></div>
+        <div class="step"><h3>ফাইলে ট্যাপ করো</h3><p>ফাইল ম্যানেজার খুলে <b>BanglaBrowser-1.2.1.apk</b>-তে ট্যাপ করো।</p></div>
         <div class="step"><h3>Install চাপো</h3><p>Android অচেনা সোর্সের অনুমতি চাইলে "Allow" দাও, তারপর Install।</p></div>
       </div>
       <p class="note">পুরোনো ভার্সন থাকলে মুছতে হবে না। নতুন APK পুরোনোটার উপর বসবে, বুকমার্ক আর ইতিহাস অটুট থাকবে।</p>
@@ -306,11 +355,12 @@
     </div>
   </section>
 
-  <section id="faq">
+  <section class="alt" id="faq">
     <div class="wrap">
       <h2>সাধারণ প্রশ্ন</h2>
       <p class="sub">ইনস্টল আর ব্যবহার নিয়ে যা সবচেয়ে বেশি জিজ্ঞাসা করা হয়।</p>
-      <details open><summary>বাংলা ব্রাউজার কি ফ্রি?</summary><p>হ্যাঁ। কোডটা MPL-2.0 লাইসেন্সে ওপেন সোর্স। বিজ্ঞাপন নেই, ট্র্যাকিং নেই, ইন-অ্যাপ কেনাকাটাও নেই।</p></details>
+      <details open><summary>ইংরেজি সাইট কি বাংলায় পড়া যায়?</summary><p>হ্যাঁ। এটাই ১.২.১-এর সবচেয়ে বড় নতুন জিনিস। যেকোনো ইংরেজি পেজ খুললে লেখা নিজে থেকেই বাংলায় বদলে যায় — ডিফল্টে চালু থাকে। বন্ধ করতে: মেনু (⋮) → <b>বাংলায় অনুবাদ</b>, অথবা সেটিংস → ব্রাউজিং → বাংলায় অনুবাদ। আবার চালু করলে পেজ রিলোড হয়ে বাংলায় আসবে।</p></details>
+      <details><summary>বাংলা ব্রাউজার কি ফ্রি?</summary><p>হ্যাঁ। কোডটা MPL-2.0 লাইসেন্সে ওপেন সোর্স। বিজ্ঞাপন নেই, ট্র্যাকিং নেই, ইন-অ্যাপ কেনাকাটাও নেই।</p></details>
       <details><summary>ফোনে কোনো তথ্য পাঠায় কি?</summary><p>না। কোনো অ্যানালিটিক্স নেই। বুকমার্ক, ইতিহাস আর সেটিংস শুধু তোমার ফোনেই থাকে।</p></details>
       <details><summary>কোন Android ভার্সনে চলবে?</summary><p>Android 5.0 (API 21) আর তার পরের সব ভার্সনে।</p></details>
                   <details><summary>সোর্স কোড কি সবার জন্য খোলা?</summary><p>হ্যাঁ। কোড <a href="https://github.com/Mamun015/bangla-browser">GitHub</a>-এ MPL-2.0 লাইসেন্সে প্রকাশিত। কেউ কোড দেখতে, ব্যবহার করতে বা বদলাতে পারে; বদলানো ফাইলও একই লাইসেন্সে খোলা রাখতে হবে, তাই কেউ কোডটা বন্ধ করে নিজের বলে চালাতে পারবে না। অ্যাপের নাম ও আইকন আলাদা, সেগুলো কেউ ব্যবহার করতে পারবে না।</p></details>
