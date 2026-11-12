@@ -68,13 +68,6 @@ JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 bash build.sh
 
 Output: `BanglaBrowser-1.1.04.apk`. See [BUILD.md](BUILD.md) for details. The signing key (`keystore.jks`) is not in the repository; generate your own to build a fork.
 
-## Limitations
-
-- Google blocks account sign-in inside WebView, so Gmail and YouTube logins open in Chrome instead.
-- DRM video (Netflix, Prime Video) does not play.
-- A few sites refuse to load inside WebView.
-- The app is distributed as a direct APK, not through Google Play.
-
 ## FAQ
 
 **Is it free?** Yes. Open source under MPL-2.0, no ads, no in-app purchases.
