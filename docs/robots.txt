@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /preview.html
 
-Sitemap: https://mamun0937.github.io/bangla-browser/sitemap.xml
+Sitemap: https://mamun015.github.io/bangla-browser/sitemap.xml

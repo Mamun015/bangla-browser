@@ -2,7 +2,7 @@
 
 ছোট, দ্রুত ও সম্পূর্ণ বাংলা অ্যান্ড্রয়েড ব্রাউজার। এই রিলিজে আগের বাগগুলো ঠিক করা হয়েছে আর চেহারা আরও পরিষ্কার করা হয়েছে।
 
-![বাংলা ব্রাউজার ১.১.০১](https://raw.githubusercontent.com/mamun0937/bangla-browser/main/docs/screenshot.png)
+![বাংলা ব্রাউজার ১.১.০১](https://raw.githubusercontent.com/Mamun015/bangla-browser/main/docs/screenshot.png)
 
 ## ঠিক করা হয়েছে
 

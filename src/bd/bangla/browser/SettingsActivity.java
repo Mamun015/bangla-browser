@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Switch;
@@ -26,6 +27,7 @@ import java.util.List;
 public class SettingsActivity extends Activity {
 
     private static final String PREFS = "bangla_browser";
+    private static final int REQ_ROLE = 4301;
 
     private SharedPreferences prefs;
     private boolean darkMode;
@@ -121,6 +123,15 @@ public class SettingsActivity extends Activity {
         });
         top.addView(back);
 
+        ImageView logo = new ImageView(this);
+        try {
+            logo.setImageDrawable(getPackageManager().getApplicationIcon(getApplicationInfo()));
+        } catch (Exception ignored) { }
+        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(dp(26), dp(26));
+        llp.leftMargin = dp(2);
+        llp.rightMargin = dp(10);
+        top.addView(logo, llp);
+
         TextView title = new TextView(this);
         title.setText("সেটিংস");
         title.setTextSize(18);
@@ -151,6 +162,7 @@ public class SettingsActivity extends Activity {
         list.addView(section("ব্রাউজিং"));
         list.addView(switchRow("⚙", "জাভাস্ক্রিপ্ট", prefs.getBoolean("js", true), "js"));
         list.addView(switchRow("🖼", "ছবি লোড", prefs.getBoolean("images", true), "images"));
+        list.addView(switchRow("🗂", "লিংক নতুন ট্যাবে", prefs.getBoolean("newtab", false), "newtab"));
 
         list.addView(section("ডেটা"));
         list.addView(row("🕘", "ইতিহাস মুছুন", null, new Runnable() {
@@ -162,18 +174,38 @@ public class SettingsActivity extends Activity {
         list.addView(row("🧹", "কুকি ও ক্যাশে মুছুন", null, new Runnable() {
             public void run() { clearCookies(); }
         }));
+        list.addView(row("⚠️", "সব ডেটা মুছুন", null, new Runnable() {
+            public void run() { clearAll(); }
+        }));
 
         list.addView(section("অ্যাপ"));
-        list.addView(row("ℹ", "সংস্করণ", "১.১.০২", null));
+        list.addView(row("🌐", "ডিফল্ট ব্রাউজার",
+                BrowserRole.isDefault(this) ? "সেট আছে" : "সেট করুন", new Runnable() {
+                    public void run() {
+                        if (!BrowserRole.request(SettingsActivity.this, REQ_ROLE)) {
+                            toast("এই ফোনে সেটিংস খোলা যায়নি");
+                        }
+                    }
+                }));
+        list.addView(row("⬇️", "ডাউনলোড দেখুন", null, new Runnable() {
+            public void run() {
+                try {
+                    startActivity(new android.content.Intent(
+                            android.app.DownloadManager.ACTION_VIEW_DOWNLOADS));
+                } catch (Exception e) {
+                    toast("ডাউনলোড অ্যাপ পাওয়া যায়নি");
+                }
+            }
+        }));
+        list.addView(row("ℹ", "সংস্করণ", "১.১.০৪", null));
         list.addView(row("🔗", "সোর্স কোড", "GitHub", new Runnable() {
             public void run() {
                 try {
                     startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,
-                            android.net.Uri.parse("https://github.com/mamun0937/bangla-browser")));
+                            android.net.Uri.parse("https://github.com/Mamun015/bangla-browser")));
                 } catch (Exception ignored) { }
             }
         }));
-        list.addView(row("📄", "লাইসেন্স", "MPL-2.0", null));
 
         scroll.addView(list);
         root.addView(scroll, new LinearLayout.LayoutParams(
@@ -367,6 +399,35 @@ public class SettingsActivity extends Activity {
                 })
                 .setNegativeButton("না", null)
                 .show();
+    }
+
+    private void clearAll() {
+        new AlertDialog.Builder(this, darkMode ? android.R.style.Theme_Material_Dialog_Alert
+                : android.R.style.Theme_Material_Light_Dialog_Alert)
+                .setTitle("সব ডেটা মুছবেন?")
+                .setMessage("ইতিহাস, বুকমার্ক, কুকি আর ক্যাশে সব মুছে যাবে। সেটিংস আগের মতো থাকবে।")
+                .setPositiveButton("সব মুছুন", (d, w) -> {
+                    prefs.edit().putString("history", "[]").putString("bookmarks", "[]").apply();
+                    android.webkit.CookieManager cm = android.webkit.CookieManager.getInstance();
+                    cm.removeAllCookies(null);
+                    cm.flush();
+                    android.webkit.WebStorage.getInstance().deleteAllData();
+                    toast("সব ডেটা মোছা হয়েছে");
+                    refresh();
+                })
+                .setNegativeButton("না", null)
+                .show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        if (requestCode == REQ_ROLE) {
+            toast(BrowserRole.isDefault(this)
+                    ? "ডিফল্ট ব্রাউজার সেট হয়েছে" : "ডিফল্ট ব্রাউজার সেট হয়নি");
+            refresh();
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void toast(String s) {

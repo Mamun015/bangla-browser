@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -30,6 +31,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -71,6 +73,10 @@ public class MainActivity extends Activity {
 
     private ValueCallback<Uri[]> filePathCallback;
     private static final int REQ_FILE = 4201;
+    private static final int REQ_ROLE = 4202;
+
+    private View fullView;
+    private WebChromeClient.CustomViewCallback fullCallback;
 
     private static class Tab {
         WebView web;
@@ -172,6 +178,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        exitFullscreen();
         for (Tab t : tabs) {
             if (t.web != null) {
                 t.web.stopLoading();
@@ -190,6 +197,10 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
+        if (fullView != null) {
+            exitFullscreen();
+            return;
+        }
         if (overlay != null) {
             closeOverlay();
             return;
@@ -321,12 +332,6 @@ public class MainActivity extends Activity {
             public void onClick(View v) { showTabSwitcher(); }
         });
 
-        TextView menuBtn = glyphButton("⋮", 20, cText);
-        titleRow.addView(menuBtn);
-        menuBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) { showMenu(); }
-        });
-
         topBar.addView(titleRow);
 
         // address row
@@ -416,6 +421,9 @@ public class MainActivity extends Activity {
         });
         navItem("▣", "ট্যাব", new Runnable() {
             public void run() { showTabSwitcher(); }
+        });
+        navItem("⋮", "মেনু", new Runnable() {
+            public void run() { showMenu(); }
         });
 
         rootView.addView(bottomBar, new LinearLayout.LayoutParams(
@@ -697,6 +705,8 @@ public class MainActivity extends Activity {
         grip.addView(bar, blp);
         sheet.addView(grip);
 
+        sheet.addView(sheetHeader());
+
         ScrollView scroll = new ScrollView(this);
         LinearLayout list = new LinearLayout(this);
         list.setOrientation(LinearLayout.VERTICAL);
@@ -711,13 +721,7 @@ public class MainActivity extends Activity {
             public void run() { showList("ইতিহাস", "history", true); }
         }));
         list.addView(menuRow("⬇️", "ডাউনলোড", null, new Runnable() {
-            public void run() {
-                try {
-                    startActivity(new Intent(android.app.DownloadManager.ACTION_VIEW_DOWNLOADS));
-                } catch (Exception e) {
-                    toast("ডাউনলোড অ্যাপ পাওয়া যায়নি");
-                }
-            }
+            public void run() { showDownloads(); }
         }));
         list.addView(menuRow("📤", "শেয়ার", null, new Runnable() {
             public void run() {
@@ -728,8 +732,21 @@ public class MainActivity extends Activity {
                 startActivity(Intent.createChooser(i, "শেয়ার করুন"));
             }
         }));
+        list.addView(menuRow("🔗", "লিংক কপি", null, new Runnable() {
+            public void run() { copyLink(); }
+        }));
 
         list.addView(sectionLabel("পেজ"));
+
+        list.addView(menuRow("🔍", "পেজে খুঁজুন", null, new Runnable() {
+            public void run() { findInPage(); }
+        }));
+        list.addView(menuRow("🔄", "রিলোড", null, new Runnable() {
+            public void run() { if (current != null) current.reload(); }
+        }));
+        list.addView(menuRow("🖨️", "প্রিন্ট", null, new Runnable() {
+            public void run() { printPage(); }
+        }));
 
         list.addView(toggleRow(desktopMode ? "🖥️" : "📱",
                 "ডেস্কটপ সাইট", desktopMode, new Runnable() {
@@ -750,14 +767,25 @@ public class MainActivity extends Activity {
             }
         }));
 
+        list.addView(sectionLabel("ট্যাব"));
+
+        list.addView(menuRow("🗑️", "সব ট্যাব বন্ধ", String.valueOf(tabs.size()), new Runnable() {
+            public void run() { closeAllTabs(); }
+        }));
+
         list.addView(sectionLabel("অ্যাপ"));
+
+        list.addView(menuRow("🌐", "ডিফল্ট ব্রাউজার",
+                isDefaultBrowser() ? "সেট আছে" : "সেট করুন", new Runnable() {
+                    public void run() { askDefaultBrowser(); }
+                }));
 
         list.addView(menuRow("⚙️", "সেটিংস", null, new Runnable() {
             public void run() {
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
             }
         }));
-        list.addView(menuRow("ℹ️", "অ্যাপ সম্পর্কে", "১.১.০২", new Runnable() {
+        list.addView(menuRow("ℹ️", "অ্যাপ সম্পর্কে", "১.১.০৪", new Runnable() {
             public void run() { about(); }
         }));
 
@@ -852,6 +880,379 @@ public class MainActivity extends Activity {
     private View toggleRow(String icon, String label, boolean on, final Runnable action) {
         return menuRow(icon, label, on ? "চালু" : "বন্ধ", action);
     }
+
+    private View sheetHeader() {
+        LinearLayout head = new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        head.setPadding(dp(10), dp(4), dp(8), dp(12));
+
+        ImageView logo = new ImageView(this);
+        try {
+            logo.setImageDrawable(getPackageManager().getApplicationIcon(getApplicationInfo()));
+        } catch (Exception ignored) { }
+        head.addView(logo, new LinearLayout.LayoutParams(dp(38), dp(38)));
+
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        texts.setPadding(dp(12), 0, 0, 0);
+
+        TextView name = new TextView(this);
+        name.setText("বাংলা ব্রাউজার");
+        name.setTextSize(15);
+        name.setTypeface(Typeface.DEFAULT_BOLD);
+        name.setTextColor(cText);
+        texts.addView(name);
+
+        TextView sub = new TextView(this);
+        sub.setText("সংস্করণ ১.১.০৪ · MPL-2.0");
+        sub.setTextSize(11);
+        sub.setTextColor(cMuted);
+        texts.addView(sub);
+
+        head.addView(texts, new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView close = glyphButton("✕", 16, cMuted);
+        close.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { closeOverlay(); }
+        });
+        head.addView(close);
+        return head;
+    }
+
+    // ---------------------------------------------------------------- downloads
+
+    private void showDownloads() {
+        final android.app.DownloadManager dm =
+                (android.app.DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+
+        final FrameLayout box = new FrameLayout(this);
+        box.setBackgroundColor(0x66000000);
+        box.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { closeOverlay(); }
+        });
+
+        LinearLayout sheet = new LinearLayout(this);
+        sheet.setOrientation(LinearLayout.VERTICAL);
+        sheet.setBackground(sheetBg());
+        sheet.setPadding(dp(8), dp(8), dp(8), dp(16));
+        sheet.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { }
+        });
+
+        LinearLayout head = new LinearLayout(this);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        head.setPadding(dp(14), dp(8), dp(8), dp(10));
+
+        TextView title = new TextView(this);
+        title.setText("ডাউনলোড");
+        title.setTextSize(16);
+        title.setTypeface(Typeface.DEFAULT_BOLD);
+        title.setTextColor(cText);
+        head.addView(title, new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView close = glyphButton("✕", 16, cMuted);
+        close.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) { closeOverlay(); }
+        });
+        head.addView(close);
+        sheet.addView(head);
+
+        ScrollView scroll = new ScrollView(this);
+        LinearLayout list = new LinearLayout(this);
+        list.setOrientation(LinearLayout.VERTICAL);
+
+        int count = 0;
+        Cursor c = null;
+        try {
+            if (dm != null) {
+                c = dm.query(new android.app.DownloadManager.Query());
+                while (c != null && c.moveToNext() && count < 60) {
+                    long id = c.getLong(c.getColumnIndexOrThrow(
+                            android.app.DownloadManager.COLUMN_ID));
+                    String name = c.getString(c.getColumnIndexOrThrow(
+                            android.app.DownloadManager.COLUMN_TITLE));
+                    String mime = c.getString(c.getColumnIndexOrThrow(
+                            android.app.DownloadManager.COLUMN_MEDIA_TYPE));
+                    int status = c.getInt(c.getColumnIndexOrThrow(
+                            android.app.DownloadManager.COLUMN_STATUS));
+                    long total = c.getLong(c.getColumnIndexOrThrow(
+                            android.app.DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                    long done = c.getLong(c.getColumnIndexOrThrow(
+                            android.app.DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+
+                    if (name == null || name.length() == 0) name = "ফাইল " + id;
+                    String meta = downloadStatus(status, done, total);
+                    if (total > 0) meta = meta + " · " + sizeText(total);
+
+                    list.addView(downloadRow(iconFor(mime, name), name, meta, id, mime,
+                            status == android.app.DownloadManager.STATUS_SUCCESSFUL));
+                    count++;
+                }
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (c != null) c.close();
+        }
+
+        if (count == 0) {
+            TextView empty = new TextView(this);
+            empty.setText("এখনো কোনো ডাউনলোড নেই।\nকোনো পেজ থেকে ফাইল নামালে সেটা এখানে দেখা যাবে।");
+            empty.setTextSize(13);
+            empty.setTextColor(cMuted);
+            empty.setGravity(Gravity.CENTER);
+            empty.setPadding(dp(16), dp(28), dp(16), dp(28));
+            list.addView(empty);
+        }
+
+        scroll.addView(list);
+        sheet.addView(scroll);
+
+        final ScrollView dScroll = scroll;
+        final LinearLayout dList = list;
+        scroll.post(new Runnable() {
+            public void run() {
+                int max = (int) (getResources().getDisplayMetrics().heightPixels * 0.72f);
+                if (dList.getHeight() > max) {
+                    ViewGroup.LayoutParams lp = dScroll.getLayoutParams();
+                    lp.height = max;
+                    dScroll.setLayoutParams(lp);
+                }
+            }
+        });
+
+        FrameLayout.LayoutParams slp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        slp.gravity = Gravity.BOTTOM;
+        box.addView(sheet, slp);
+
+        openOverlay(box);
+        sheet.setTranslationY(dp(40));
+        sheet.setAlpha(0f);
+        sheet.animate().translationY(0).alpha(1f).setDuration(180).start();
+    }
+
+    private String iconFor(String mime, String name) {
+        String m = mime == null ? "" : mime.toLowerCase(java.util.Locale.US);
+        String n = name == null ? "" : name.toLowerCase(java.util.Locale.US);
+        if (m.startsWith("image/") || n.endsWith(".jpg") || n.endsWith(".png")
+                || n.endsWith(".webp")) return "🖼️";
+        if (m.startsWith("video/") || n.endsWith(".mp4") || n.endsWith(".mkv")) return "🎬";
+        if (m.startsWith("audio/") || n.endsWith(".mp3") || n.endsWith(".m4a")) return "🎵";
+        if (m.contains("pdf") || n.endsWith(".pdf")) return "📕";
+        if (m.contains("zip") || m.contains("compressed") || n.endsWith(".zip")
+                || n.endsWith(".apk")) return "🗜️";
+        return "📄";
+    }
+
+    private String downloadStatus(int status, long done, long total) {
+        if (status == android.app.DownloadManager.STATUS_SUCCESSFUL) return "সম্পন্ন";
+        if (status == android.app.DownloadManager.STATUS_FAILED) return "ব্যর্থ";
+        if (status == android.app.DownloadManager.STATUS_PAUSED) return "থেমে আছে";
+        if (total > 0) return "চলছে " + (done * 100 / total) + "%";
+        return "চলছে";
+    }
+
+    private String sizeText(long bytes) {
+        if (bytes <= 0) return "";
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024L * 1024L) return (bytes / 1024) + " KB";
+        if (bytes < 1024L * 1024L * 1024L) {
+            return String.format(java.util.Locale.US, "%.1f MB", bytes / 1048576.0);
+        }
+        return String.format(java.util.Locale.US, "%.1f GB", bytes / 1073741824.0);
+    }
+
+    private View downloadRow(String icon, String name, String meta, final long id,
+                             final String mime, final boolean openable) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(10), dp(8), dp(12), dp(8));
+        ripple(row);
+
+        LinearLayout tile = new LinearLayout(this);
+        tile.setGravity(Gravity.CENTER);
+        tile.setBackground(rounded(cSurface, 11));
+        TextView ico = new TextView(this);
+        ico.setText(icon);
+        ico.setTextSize(18);
+        ico.setGravity(Gravity.CENTER);
+        tile.addView(ico, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        row.addView(tile, new LinearLayout.LayoutParams(dp(36), dp(36)));
+
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        texts.setPadding(dp(14), 0, 0, 0);
+
+        TextView title = new TextView(this);
+        title.setText(name);
+        title.setTextSize(14);
+        title.setTextColor(cText);
+        title.setSingleLine(true);
+        title.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+        texts.addView(title);
+
+        TextView sub = new TextView(this);
+        sub.setText(meta);
+        sub.setTextSize(11);
+        sub.setTextColor(cMuted);
+        texts.addView(sub);
+
+        row.addView(texts, new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        row.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (!openable) {
+                    toast("ফাইলটা এখনো নামছে");
+                    return;
+                }
+                openDownload(id, mime);
+            }
+        });
+        return row;
+    }
+
+    private void openDownload(long id, String mime) {
+        try {
+            android.app.DownloadManager dm =
+                    (android.app.DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+            Uri u = dm.getUriForDownloadedFile(id);
+            if (u == null) {
+                toast("ফাইলটা পাওয়া যায়নি");
+                return;
+            }
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setDataAndType(u, mime == null || mime.length() == 0 ? "*/*" : mime);
+            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(i);
+        } catch (Exception e) {
+            toast("ফাইল খোলার মতো অ্যাপ নেই");
+        }
+    }
+
+    // ---------------------------------------------------------------- default browser
+
+    private boolean isDefaultBrowser() {
+        return BrowserRole.isDefault(this);
+    }
+
+    private void askDefaultBrowser() {
+        if (isDefaultBrowser()) {
+            toast("বাংলা ব্রাউজার এখনই ডিফল্ট ব্রাউজার");
+            return;
+        }
+        if (!BrowserRole.request(this, REQ_ROLE)) {
+            toast("এই ফোনে সেটিংস খোলা যায়নি");
+        }
+    }
+
+    // ---------------------------------------------------------------- page tools
+
+    private void copyLink() {
+        if (current == null) return;
+        String u = current.getUrl();
+        if (!isRealPage(u)) {
+            toast("এই পেজের লিংক নেই");
+            return;
+        }
+        try {
+            android.content.ClipboardManager cb =
+                    (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            cb.setPrimaryClip(android.content.ClipData.newPlainText("লিংক", u));
+            toast("লিংক কপি হয়েছে");
+        } catch (Exception e) {
+            toast("কপি করা যায়নি");
+        }
+    }
+
+    private void findInPage() {
+        if (current == null) return;
+        final EditText input = new EditText(this);
+        input.setSingleLine(true);
+        input.setTextSize(15);
+        input.setHint("পেজে লেখা খুঁজুন");
+        input.setTextColor(cText);
+        input.setHintTextColor(cMuted);
+        input.setPadding(dp(20), dp(10), dp(20), dp(10));
+
+        dialog().setTitle("পেজে খুঁজুন")
+                .setView(input)
+                .setPositiveButton("খুঁজুন", (d, w) -> {
+                    String q = input.getText().toString();
+                    if (q.length() > 0) current.findAllAsync(q);
+                })
+                .setNegativeButton("বন্ধ", (d, w) -> {
+                    if (current != null) current.clearMatches();
+                })
+                .show();
+    }
+
+    private void printPage() {
+        if (current == null) return;
+        try {
+            android.print.PrintManager pm =
+                    (android.print.PrintManager) getSystemService(PRINT_SERVICE);
+            String name = pageTitle.getText().toString();
+            if (name.length() == 0) name = "বাংলা ব্রাউজার";
+            pm.print(name, current.createPrintDocumentAdapter(name), null);
+        } catch (Exception e) {
+            toast("এই ফোনে প্রিন্ট চালু নেই");
+        }
+    }
+
+    private void closeAllTabs() {
+        for (Tab t : new ArrayList<>(tabs)) {
+            try {
+                holder.removeView(t.web);
+                t.web.stopLoading();
+                t.web.destroy();
+            } catch (Exception ignored) { }
+        }
+        tabs.clear();
+        activeIndex = 0;
+        current = null;
+        newTab(homeUrl(), true);
+        toast("সব ট্যাব বন্ধ হয়েছে");
+    }
+
+    // ---------------------------------------------------------------- fullscreen video
+
+    private void exitFullscreen() {
+        if (fullView == null) return;
+        try {
+            screen.removeView(fullView);
+        } catch (Exception ignored) { }
+        fullView = null;
+        hideSystemBars(false);
+        WebChromeClient.CustomViewCallback cb = fullCallback;
+        fullCallback = null;
+        if (cb != null) cb.onCustomViewHidden();
+    }
+
+    private void hideSystemBars(boolean hide) {
+        try {
+            Window w = getWindow();
+            View d = w.getDecorView();
+            if (hide) {
+                w.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                d.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+            } else {
+                w.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                d.setSystemUiVisibility(darkMode ? 0 : View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }
+        } catch (Exception ignored) { }
+    }
+
 
     // ---------------------------------------------------------------- overlays
 
@@ -988,6 +1389,26 @@ public class MainActivity extends Activity {
                     return false;
                 }
             }
+
+            @Override
+            public void onShowCustomView(View view, CustomViewCallback callback) {
+                if (fullView != null) {
+                    callback.onCustomViewHidden();
+                    return;
+                }
+                fullView = view;
+                fullCallback = callback;
+                screen.addView(fullView, new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+                closeOverlay();
+                hideSystemBars(true);
+            }
+
+            @Override
+            public void onHideCustomView() {
+                exitFullscreen();
+            }
         });
 
         web.setDownloadListener(new DownloadListener() {
@@ -1037,6 +1458,10 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQ_ROLE) {
+            toast(isDefaultBrowser() ? "ডিফল্ট ব্রাউজার সেট হয়েছে" : "ডিফল্ট ব্রাউজার সেট হয়নি");
+            return;
+        }
         if (requestCode == REQ_FILE) {
             if (filePathCallback != null) {
                 Uri[] result = null;
@@ -1074,6 +1499,11 @@ public class MainActivity extends Activity {
         if (url == null) return true;
         if (url.startsWith("bangla://")) {
             internal(view, url);
+            return true;
+        }
+        if ((url.startsWith("http://") || url.startsWith("https://"))
+                && prefs.getBoolean("newtab", false)) {
+            newTab(url, true);
             return true;
         }
         if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("file://")) {
@@ -1266,12 +1696,15 @@ public class MainActivity extends Activity {
     }
 
     private void about() {
-        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.১.০২\n\n"
+        String msg = "বাংলা ব্রাউজার\nসংস্করণ ১.১.০৪\n\n"
                 + "সহজ, দ্রুত ও সম্পূর্ণ বাংলা ব্রাউজার।\n"
                 + "ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড — সব একসাথে।\n\n"
                 + "নির্মাতা\n"
-                + "মামুন\n"
-                + "গিটহাব: github.com/mamun0937\n\n"
+                + "মামুন (@Mamun015)\n"
+                + "github.com/Mamun015\n\n"
+                + "সোর্স কোড: ওপেন সোর্স\n"
+                + "লাইসেন্স: Mozilla Public License 2.0 (MPL-2.0)\n"
+                + "github.com/Mamun015/bangla-browser\n\n"
                 + "Made in Bangladesh";
         dialog().setTitle("অ্যাপ সম্পর্কে")
                 .setMessage(msg)

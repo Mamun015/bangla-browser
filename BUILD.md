@@ -25,7 +25,7 @@ curl -o sdk/r8.jar https://maven.google.com/com/android/tools/r8/8.3.37/r8-8.3.3
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 bash build.sh
 ```
 
-Output: `BanglaBrowser-1.1.02.apk`.
+Output: `BanglaBrowser-1.1.03.apk`.
 
 `build.sh` creates `keystore.jks` on the first run. Keep that file. Every future version must be signed with the same key, otherwise Android refuses to install the update over the old app.
 
@@ -42,6 +42,7 @@ build.sh                                the build
 
 ## Changelog
 
+- 1.1.03 default browser option, YouTube fullscreen video, in-app downloads list, branded bottom menu.
 - 1.1.02 move the project to MPL-2.0, show the license in Settings, no feature changes.
 - 1.1.01 fix blank menu actions (settings and about now open), About page with maker details and "Made in Bangladesh", bigger colorful launcher icon, nicer menu icons, lazy tab loading, sheet height cap, main-frame only error page.
 - 1.1 tabs with a Chrome style switcher, Edge style bottom menu, settings screen (search engine, text size, JavaScript, images, clear data), session restore.
@@ -51,7 +52,7 @@ build.sh                                the build
 ## Website
 
 The landing page lives in `docs/` and is published at
-<https://mamun0937.github.io/bangla-browser/> from the `gh-pages` branch.
+<https://mamun015.github.io/bangla-browser/> from the `gh-pages` branch.
 After editing anything in `docs/`, copy `index.html`, `icon.png`,
 `screenshot.png`, `robots.txt` and `sitemap.xml` to the root of `gh-pages`
 and push, then request a rebuild in the repository's Pages settings.

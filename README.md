@@ -7,14 +7,14 @@
 **A fast, light Android browser with a full Bengali interface.**
 WebView based. No ads. No tracking. About 100 KB.
 
-[**⬇ Download APK**](https://github.com/mamun0937/bangla-browser/releases/latest) ·
-[Website](https://mamun0937.github.io/bangla-browser/) ·
+[**⬇ Download APK**](https://github.com/Mamun015/bangla-browser/releases/latest) ·
+[Website](https://mamun015.github.io/bangla-browser/) ·
 [Features](#features) ·
 [Install](#install) ·
 [Build](#build-from-source)
 
 ![Android 5.0+](https://img.shields.io/badge/Android-5.0%2B-3ddc84?logo=android&logoColor=white)
-![Version](https://img.shields.io/badge/version-1.1.02-006a4e)
+![Version](https://img.shields.io/badge/version-1.1.04-006a4e)
 ![License](https://img.shields.io/badge/license-MPL--2.0-blue)
 ![Size](https://img.shields.io/badge/APK-105%20KB-lightgrey)
 
@@ -40,7 +40,7 @@ WebView based. No ads. No tracking. About 100 KB.
 
 ## Install
 
-1. Download **[BanglaBrowser-1.1.02.apk](https://github.com/mamun0937/bangla-browser/releases/latest)**.
+1. Download **[BanglaBrowser-1.1.04.apk](https://github.com/Mamun015/bangla-browser/releases/latest)**.
 2. Tap the file in your phone's Downloads folder.
 3. Allow installs from this source when Android asks, then tap **Install**.
 
@@ -66,7 +66,7 @@ Requirements:
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 bash build.sh
 ```
 
-Output: `BanglaBrowser-1.1.02.apk`. See [BUILD.md](BUILD.md) for details. The signing key (`keystore.jks`) is not in the repository; generate your own to build a fork.
+Output: `BanglaBrowser-1.1.04.apk`. See [BUILD.md](BUILD.md) for details. The signing key (`keystore.jks`) is not in the repository; generate your own to build a fork.
 
 ## Limitations
 
@@ -99,6 +99,8 @@ Versions released before 1.1.02 (1.0, 1.1, 1.1.01) were published under the MIT
 license and stay under it.
 
 <div align="center">
+
+Made by [Mamun (@Mamun015)](https://github.com/Mamun015)
 
 **Made in Bangladesh** 🇧🇩
 

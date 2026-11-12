@@ -2,7 +2,7 @@
 
 এই ভার্সনে নতুন ফিচার নেই। শুধু লাইসেন্স বদলেছে: **MIT থেকে MPL-2.0**।
 
-![বাংলা ব্রাউজার ১.১.০২](https://raw.githubusercontent.com/mamun0937/bangla-browser/main/docs/screenshot.png)
+![বাংলা ব্রাউজার ১.১.০২](https://raw.githubusercontent.com/Mamun015/bangla-browser/main/docs/screenshot.png)
 
 ## যা বদলেছে
 
