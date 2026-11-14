@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="https://github.com/Mamun015/bangla-browser/releases/download/v2.0/shot-1.png" width="240" alt="হোম পেজ">
+  <img src="https://github.com/Mamun015/bangla-browser/releases/download/v2.0/shot-6.png" width="240" alt="নেটওয়ার্ক পরীক্ষা">
+</p>
+
 # বাংলা ব্রাউজার ২.০
 
 এটা এখন পর্যন্ত সবচেয়ে বড় আপডেট — অ্যাড্রেস বারে সাজেশন, নতুন চেহারা, আর সাইট খোলার পথে যে জায়গাগুলোতে আটকে যেত সেগুলো সারানো।
