@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>হোম</title>
+<title data-i18n="title">হোম</title>
 <style>
   :root{
-    --bg:#ffffff; --surface:#f2f6f4; --text:#111714; --muted:#68736d;
-    --accent:#006a4e; --red:#f42a41; --line:#e2e9e5; --shadow:0 1px 2px rgba(17,23,20,.06);
+    --bg:#FFFFFF; --surface:#F3F7F5; --text:#0D1412; --muted:#667471;
+    --accent:#007A5A; --red:#f42a41; --line:#E4EBE7; --shadow:0 1px 2px rgba(13,20,18,.05);
   }
   html.dark{
-    --bg:#0f1211; --surface:#191f1d; --text:#e9efec; --muted:#8b9791;
-    --accent:#2bbd8f; --line:#242c29; --shadow:none;
+    --bg:#080B0A; --surface:#121715; --text:#EAF1EE; --muted:#8D9A95;
+    --accent:#34D399; --line:#1F2724; --shadow:none;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;background:var(--bg)}
@@ -30,7 +30,7 @@
   form{
     display:flex;align-items:center;gap:8px;
     background:var(--surface);border:1px solid var(--line);
-    border-radius:18px;padding:5px 5px 5px 15px;
+    border-radius:20px;padding:5px 5px 5px 15px;
   }
   form svg{flex:none;opacity:.5}
   input{
@@ -40,7 +40,7 @@
   input::placeholder{color:var(--muted)}
   button{
     border:0;background:var(--accent);color:#fff;font-family:inherit;
-    font-size:14px;font-weight:600;padding:11px 18px;border-radius:14px;
+    font-size:14px;font-weight:600;padding:11px 18px;border-radius:15px;
   }
   button:active{transform:scale(.97)}
   h2{
@@ -73,10 +73,10 @@
 <body>
 
   <div class="head">
-    <img class="logo" src="icon.png" alt="বাংলা ব্রাউজার">
+    <img class="logo" src="icon.png" alt="বাংলা ব্রাউজার" id="logo">
     <div>
-      <h1>বাংলা ব্রাউজার</h1>
-      <p>দ্রুত, সহজ, বাংলায়</p>
+      <h1 data-i18n="brand">বাংলা ব্রাউজার</h1>
+      <p data-i18n="subtitle">দ্রুত, সহজ, বাংলায়</p>
     </div>
   </div>
 
@@ -84,31 +84,104 @@
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
     </svg>
-    <input id="q" type="search" placeholder="গুগলে সার্চ করুন" autocomplete="off" enterkeyhint="search">
-    <button type="submit">খুঁজুন</button>
+    <input id="q" type="search" data-i18n-placeholder="placeholder" placeholder="গুগলে সার্চ করুন" autocomplete="off" enterkeyhint="search">
+    <button type="submit" data-i18n="button">খুঁজুন</button>
   </form>
 
-  <h2>প্রিয় সাইট</h2>
+  <h2 data-i18n="fav">প্রিয় সাইট</h2>
   <div class="tiles" id="tiles">
-    <a class="tile" href="https://www.prothomalo.com"><span class="ico">📰</span><span class="nm">প্রথম আলো</span></a>
-    <a class="tile" href="https://www.kalerkantho.com"><span class="ico">🗞️</span><span class="nm">কালের কণ্ঠ</span></a>
-    <a class="tile" href="https://bangla.bdnews24.com"><span class="ico">📻</span><span class="nm">বিডিনিউজ</span></a>
-    <a class="tile" href="https://bn.wikipedia.org"><span class="ico">📚</span><span class="nm">উইকিপিডিয়া</span></a>
-    <a class="tile" href="https://m.youtube.com"><span class="ico">▶️</span><span class="nm">ইউটিউব</span></a>
-    <a class="tile" href="https://m.facebook.com"><span class="ico">📘</span><span class="nm">ফেসবুক</span></a>
-    <a class="tile" href="https://mail.google.com"><span class="ico">✉️</span><span class="nm">জিমেইল</span></a>
-    <a class="tile" href="https://www.banglanews24.com"><span class="ico">📡</span><span class="nm">বাংলানিউজ</span></a>
+    <a class="tile" href="https://www.prothomalo.com"><span class="ico">📰</span><span class="nm" data-i18n="t1">প্রথম আলো</span></a>
+    <a class="tile" href="https://www.kalerkantho.com"><span class="ico">🗞️</span><span class="nm" data-i18n="t2">কালের কণ্ঠ</span></a>
+    <a class="tile" href="https://bangla.bdnews24.com"><span class="ico">📻</span><span class="nm" data-i18n="t3">বিডিনিউজ</span></a>
+    <a class="tile" href="https://bn.wikipedia.org"><span class="ico">📚</span><span class="nm" data-i18n="t4">উইকিপিডিয়া</span></a>
+    <a class="tile" href="https://m.youtube.com"><span class="ico">▶️</span><span class="nm" data-i18n="t5">ইউটিউব</span></a>
+    <a class="tile" href="https://m.facebook.com"><span class="ico">📘</span><span class="nm" data-i18n="t6">ফেসবুক</span></a>
+    <a class="tile" href="https://mail.google.com"><span class="ico">✉️</span><span class="nm" data-i18n="t7">জিমেইল</span></a>
+    <a class="tile" href="https://www.banglanews24.com"><span class="ico">📡</span><span class="nm" data-i18n="t8">বাংলানিউজ</span></a>
   </div>
 
-  <h2>সাম্প্রতিক</h2>
+  <h2 data-i18n="recent">সাম্প্রতিক</h2>
   <div class="recent" id="recent">
-    <p class="empty" id="empty">এখনো কিছু দেখা হয়নি। উপরের বাক্সে লিখে শুরু করুন।</p>
+    <p class="empty" id="empty" data-i18n="empty">এখনো কিছু দেখা হয়নি। উপরের বাক্সে লিখে শুরু করুন।</p>
   </div>
 
-  <footer>বাংলা ব্রাউজার <b>১.২.১.১২</b> · Made in Bangladesh</footer>
+  <footer data-i18n-html="footer">বাংলা ব্রাউজার <b>২.০</b> · Made in Bangladesh</footer>
 
 <script>
-  if (location.hash === "#dark") document.documentElement.className = "dark";
+  var I18N = {
+    bn: {
+      title: "হোম",
+      brand: "বাংলা ব্রাউজার",
+      subtitle: "দ্রুত, সহজ, বাংলায়",
+      placeholder: "গুগলে সার্চ করুন",
+      button: "খুঁজুন",
+      fav: "প্রিয় সাইট",
+      recent: "সাম্প্রতিক",
+      empty: "এখনো কিছু দেখা হয়নি। উপরের বাক্সে লিখে শুরু করুন।",
+      footer: "বাংলা ব্রাউজার <b>২.০</b> · Made in Bangladesh",
+      t1: "প্রথম আলো", t2: "কালের কণ্ঠ", t3: "বিডিনিউজ", t4: "উইকিপিডিয়া",
+      t5: "ইউটিউব", t6: "ফেসবুক", t7: "জিমেইল", t8: "বাংলানিউজ"
+    },
+    en: {
+      title: "Home",
+      brand: "Bangla Browser",
+      subtitle: "Fast, simple, in Bengali",
+      placeholder: "Search on Google",
+      button: "Search",
+      fav: "Favourite sites",
+      recent: "Recent",
+      empty: "Nothing here yet. Type above to start.",
+      footer: "Bangla Browser <b>2.0</b> · Made in Bangladesh",
+      t1: "Prothom Alo", t2: "Kaler Kantho", t3: "BDNews24", t4: "Wikipedia",
+      t5: "YouTube", t6: "Facebook", t7: "Gmail", t8: "Banglanews"
+    }
+  };
+
+  var LANG = "bn";
+
+  function readEnv() {
+    var src = (location.search || "") + "&" + (location.hash || "");
+    var m = /[?&#]lang=([^&#]*)/.exec(src);
+    if (!m) m = /#(bn|en)\b/.exec(location.hash || "");
+    LANG = "bn";
+    if (m) {
+      var v = decodeURIComponent(m[1]).toLowerCase();
+      if (v.indexOf("en") === 0) LANG = "en";
+    }
+    var dark = (location.hash || "").indexOf("dark") >= 0;
+    document.documentElement.className = dark ? "dark" : "";
+  }
+
+  function applyLang() {
+    var d = I18N[LANG] || I18N.bn;
+    document.documentElement.lang = LANG;
+    var i;
+    var nodes = document.querySelectorAll("[data-i18n]");
+    for (i = 0; i < nodes.length; i++) {
+      var k = nodes[i].getAttribute("data-i18n");
+      if (d[k] != null) nodes[i].textContent = d[k];
+    }
+    var htmlNodes = document.querySelectorAll("[data-i18n-html]");
+    for (i = 0; i < htmlNodes.length; i++) {
+      var hk = htmlNodes[i].getAttribute("data-i18n-html");
+      if (d[hk] != null) htmlNodes[i].innerHTML = d[hk];
+    }
+    var ph = document.querySelectorAll("[data-i18n-placeholder]");
+    for (i = 0; i < ph.length; i++) {
+      var pk = ph[i].getAttribute("data-i18n-placeholder");
+      if (d[pk] != null) ph[i].setAttribute("placeholder", d[pk]);
+    }
+    document.title = d.title;
+    var logo = document.getElementById("logo");
+    if (logo) logo.setAttribute("alt", d.brand);
+  }
+
+  readEnv();
+  applyLang();
+  window.addEventListener("hashchange", function () {
+    readEnv();
+    applyLang();
+  });
 
   function search() {
     var q = document.getElementById("q").value.trim();

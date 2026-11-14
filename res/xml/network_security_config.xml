@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- প্লেইন http খোলার অনুমতি, আর ফোনে ইনস্টল করা সার্টিফিকেট (AdGuard ইত্যাদি) মানা -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

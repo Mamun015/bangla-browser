@@ -31,13 +31,15 @@ public class SettingsActivity extends Activity {
 
     private SharedPreferences prefs;
     private boolean darkMode;
-    private int cBg, cSurface, cText, cMuted, cAccent, cLine;
+    private int cBg, cSurface, cSurface2, cText, cMuted, cAccent, cAccentSoft, cLine;
+    private static final String VERSION = "2.0";
     private LinearLayout list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        Lang.init(prefs);
         darkMode = themeIsDark();
         pickColors();
 
@@ -55,21 +57,15 @@ public class SettingsActivity extends Activity {
     }
 
     private void pickColors() {
-        if (darkMode) {
-            cBg = Color.parseColor("#0F1211");
-            cSurface = Color.parseColor("#191E1C");
-            cText = Color.parseColor("#E9EFEC");
-            cMuted = Color.parseColor("#8B9791");
-            cAccent = Color.parseColor("#2BBD8F");
-            cLine = Color.parseColor("#252C29");
-        } else {
-            cBg = Color.parseColor("#FFFFFF");
-            cSurface = Color.parseColor("#F1F5F3");
-            cText = Color.parseColor("#111714");
-            cMuted = Color.parseColor("#68736D");
-            cAccent = Color.parseColor("#006A4E");
-            cLine = Color.parseColor("#E1E8E4");
-        }
+        Theme t = new Theme(darkMode);
+        cBg = t.bg;
+        cSurface = t.surface;
+        cSurface2 = t.surface2;
+        cText = t.text;
+        cMuted = t.muted;
+        cAccent = t.accent;
+        cAccentSoft = t.accentSoft;
+        cLine = t.line;
     }
 
     private int dp(float v) {
@@ -87,6 +83,27 @@ public class SettingsActivity extends Activity {
         TypedValue tv = new TypedValue();
         getTheme().resolveAttribute(android.R.attr.selectableItemBackground, tv, true);
         if (tv.resourceId != 0) v.setBackgroundResource(tv.resourceId);
+    }
+
+    /** সারির আইকন: res/drawable-এর ভেক্টর, "Aa" হলে লেখা */
+    private View rowIcon(String key) {
+        if ("Aa".equals(key)) {
+            TextView t = new TextView(this);
+            t.setText("Aa");
+            t.setTextSize(14);
+            t.setTypeface(Typeface.DEFAULT_BOLD);
+            t.setTextColor(cAccent);
+            t.setGravity(Gravity.CENTER);
+            return t;
+        }
+        ImageView v = new ImageView(this);
+        int id = getResources().getIdentifier("ic_" + key, "drawable", getPackageName());
+        if (id != 0) {
+            v.setImageResource(id);
+            v.setColorFilter(cAccent);
+        }
+        v.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        return v;
     }
 
     private void rowBg(View v, boolean pressable) {
@@ -111,17 +128,20 @@ public class SettingsActivity extends Activity {
         top.setBackgroundColor(cBg);
         top.setPadding(dp(6), dp(10), dp(16), dp(10));
 
-        TextView back = new TextView(this);
-        back.setText("‹");
-        back.setTextSize(26);
-        back.setTextColor(cText);
-        back.setGravity(Gravity.CENTER);
-        back.setPadding(dp(12), dp(2), dp(12), dp(2));
-        ripple(back);
-        back.setOnClickListener(new View.OnClickListener() {
+        FrameLayout backBox = new FrameLayout(this);
+        backBox.setPadding(dp(8), dp(6), dp(8), dp(6));
+        ImageView back = new ImageView(this);
+        int backId = getResources().getIdentifier("ic_back", "drawable", getPackageName());
+        if (backId != 0) {
+            back.setImageResource(backId);
+            back.setColorFilter(cText);
+        }
+        back.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        backBox.addView(back, new FrameLayout.LayoutParams(dp(24), dp(24)));
+        backBox.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) { finish(); }
         });
-        top.addView(back);
+        top.addView(backBox);
 
         ImageView logo = new ImageView(this);
         try {
@@ -133,7 +153,7 @@ public class SettingsActivity extends Activity {
         top.addView(logo, llp);
 
         TextView title = new TextView(this);
-        title.setText("সেটিংস");
+        title.setText(Lang.t("সেটিংস"));
         title.setTextSize(18);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         title.setTextColor(cText);
@@ -147,61 +167,68 @@ public class SettingsActivity extends Activity {
         list.setOrientation(LinearLayout.VERTICAL);
         list.setPadding(dp(12), dp(4), dp(12), dp(28));
 
-        list.addView(section("সাধারণ"));
-        list.addView(row("🔍", "সার্চ ইঞ্জিন", engineName(), new Runnable() {
+        list.addView(section(Lang.t("সাধারণ")));
+        list.addView(row("public", Lang.t("ভাষা"),
+                Lang.isEn() ? Lang.t("ইংরেজি") : Lang.t("বাংলা"), new Runnable() {
+                    public void run() { pickLanguage(); }
+                }));
+        list.addView(row("search", Lang.t("সার্চ ইঞ্জিন"), engineName(), new Runnable() {
             public void run() { pickEngine(); }
         }));
-        list.addView(row("Aa", "লেখার আকার", textZoomName(), new Runnable() {
+        list.addView(row("Aa", Lang.t("লেখার আকার"), textZoomName(), new Runnable() {
             public void run() { pickZoom(); }
         }));
 
-        list.addView(section("চেহারা"));
-        list.addView(row("☾", "থিম", themeName(), new Runnable() {
+        list.addView(section(Lang.t("চেহারা")));
+        list.addView(row("theme", Lang.t("থিম"), themeName(), new Runnable() {
             public void run() { pickTheme(); }
         }));
-        list.addView(switchRow("🖥", "ডেস্কটপ সাইট", prefs.getBoolean("desktop", false), "desktop"));
+        list.addView(switchRow("desktop", Lang.t("ডেস্কটপ সাইট"), prefs.getBoolean("desktop", false), "desktop"));
 
-        list.addView(section("ব্রাউজিং"));
-        list.addView(switchRow("অ", "বাংলায় অনুবাদ", prefs.getBoolean("autotranslate", true), "autotranslate"));
-        list.addView(switchRow("⚙", "জাভাস্ক্রিপ্ট", prefs.getBoolean("js", true), "js"));
-        list.addView(switchRow("🖼", "ছবি লোড", prefs.getBoolean("images", true), "images"));
-        list.addView(switchRow("🗂", "লিংক নতুন ট্যাবে", prefs.getBoolean("newtab", false), "newtab"));
+        list.addView(section(Lang.t("ব্রাউজিং")));
+        list.addView(switchRow("translate", Lang.t("বাংলায় অনুবাদ"), prefs.getBoolean("autotranslate", true), "autotranslate"));
+        list.addView(switchRow("code", Lang.t("জাভাস্ক্রিপ্ট"), prefs.getBoolean("js", true), "js"));
+        list.addView(switchRow("image", Lang.t("ছবি লোড"), prefs.getBoolean("images", true), "images"));
+        list.addView(switchRow("tab", Lang.t("লিংক নতুন ট্যাবে"), prefs.getBoolean("newtab", false), "newtab"));
+        list.addView(switchRow("history", Lang.t("শেষ ট্যাব ফিরিয়ে আনুন"),
+                Lang.t("ব্রাউজার চালু হলে আগের ট্যাব ফিরে আসে"),
+                prefs.getBoolean("restore", true), "restore"));
 
-        list.addView(section("ডেটা"));
-        list.addView(row("🕘", "ইতিহাস মুছুন", null, new Runnable() {
-            public void run() { clearData("history", "ইতিহাস"); }
+        list.addView(section(Lang.t("ডেটা")));
+        list.addView(row("history", Lang.t("ইতিহাস মুছুন"), null, new Runnable() {
+            public void run() { clearData("history", Lang.t("ইতিহাস")); }
         }));
-        list.addView(row("★", "বুকমার্ক মুছুন", null, new Runnable() {
-            public void run() { clearData("bookmarks", "বুকমার্ক"); }
+        list.addView(row("bookmarks", Lang.t("বুকমার্ক মুছুন"), null, new Runnable() {
+            public void run() { clearData("bookmarks", Lang.t("বুকমার্ক")); }
         }));
-        list.addView(row("🧹", "কুকি ও ক্যাশে মুছুন", null, new Runnable() {
+        list.addView(row("cookie", Lang.t("কুকি ও ক্যাশে মুছুন"), null, new Runnable() {
             public void run() { clearCookies(); }
         }));
-        list.addView(row("⚠️", "সব ডেটা মুছুন", null, new Runnable() {
+        list.addView(row("delete", Lang.t("সব ডেটা মুছুন"), null, new Runnable() {
             public void run() { clearAll(); }
         }));
 
-        list.addView(section("অ্যাপ"));
-        list.addView(row("🌐", "ডিফল্ট ব্রাউজার",
-                BrowserRole.isDefault(this) ? "সেট আছে" : "সেট করুন", new Runnable() {
+        list.addView(section(Lang.t("অ্যাপ")));
+        list.addView(row("public", Lang.t("ডিফল্ট ব্রাউজার"),
+                BrowserRole.isDefault(this) ? Lang.t("সেট আছে") : Lang.t("সেট করুন"), new Runnable() {
                     public void run() {
                         if (!BrowserRole.request(SettingsActivity.this, REQ_ROLE)) {
-                            toast("এই ফোনে সেটিংস খোলা যায়নি");
+                            toast(Lang.t("এই ফোনে সেটিংস খোলা যায়নি"));
                         }
                     }
                 }));
-        list.addView(row("⬇️", "ডাউনলোড দেখুন", null, new Runnable() {
+        list.addView(row("download", Lang.t("ডাউনলোড দেখুন"), null, new Runnable() {
             public void run() {
                 try {
                     startActivity(new android.content.Intent(
                             android.app.DownloadManager.ACTION_VIEW_DOWNLOADS));
                 } catch (Exception e) {
-                    toast("ডাউনলোড অ্যাপ পাওয়া যায়নি");
+                    toast(Lang.t("ডাউনলোড অ্যাপ পাওয়া যায়নি"));
                 }
             }
         }));
-        list.addView(row("ℹ", "সংস্করণ", "১.২", null));
-        list.addView(row("🔗", "সোর্স কোড", "GitHub", new Runnable() {
+        list.addView(row("info", Lang.t("সংস্করণ"), VERSION, null));
+        list.addView(row("link", Lang.t("সোর্স কোড"), "GitHub", new Runnable() {
             public void run() {
                 try {
                     startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,
@@ -234,18 +261,13 @@ public class SettingsActivity extends Activity {
         box.setPadding(dp(14), dp(13), dp(14), dp(13));
         rowBg(box, action != null);
 
-        TextView ico = new TextView(this);
-        ico.setText(icon);
-        ico.setTextSize(15);
-        ico.setGravity(Gravity.CENTER);
-        ico.setTextColor(cText);
-        box.addView(ico, new LinearLayout.LayoutParams(dp(30),
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        box.addView(rowIcon(icon), new LinearLayout.LayoutParams(dp(26), dp(24)));
 
         TextView name = new TextView(this);
         name.setText(label);
         name.setTextSize(15);
         name.setTextColor(cText);
+        name.setPadding(dp(14), 0, 0, 0);
         box.addView(name, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
@@ -271,34 +293,55 @@ public class SettingsActivity extends Activity {
     }
 
     private View switchRow(String icon, String label, boolean on, final String key) {
+        return switchRow(icon, label, null, on, key);
+    }
+
+    private View switchRow(String icon, String label, String sub, boolean on, final String key) {
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.HORIZONTAL);
         box.setGravity(Gravity.CENTER_VERTICAL);
         box.setPadding(dp(14), dp(9), dp(14), dp(9));
         rowBg(box, true);
 
-        TextView ico = new TextView(this);
-        ico.setText(icon);
-        ico.setTextSize(15);
-        ico.setGravity(Gravity.CENTER);
-        ico.setTextColor(cText);
-        box.addView(ico, new LinearLayout.LayoutParams(dp(30),
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        box.addView(rowIcon(icon), new LinearLayout.LayoutParams(dp(26), dp(24)));
+
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        texts.setPadding(dp(14), 0, 0, 0);
 
         TextView name = new TextView(this);
         name.setText(label);
         name.setTextSize(15);
         name.setTextColor(cText);
-        box.addView(name, new LinearLayout.LayoutParams(0,
+        texts.addView(name);
+
+        if (sub != null) {
+            TextView subView = new TextView(this);
+            subView.setText(sub);
+            subView.setTextSize(11);
+            subView.setTextColor(cMuted);
+            subView.setPadding(0, dp(1), 0, 0);
+            texts.addView(subView);
+        }
+
+        box.addView(texts, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        final TextView state = new TextView(this);
+        state.setText(Lang.onOff(on));
+        state.setTextSize(10.5f);
+        state.setTypeface(Typeface.DEFAULT_BOLD);
+        state.setTextColor(on ? cAccent : cMuted);
+        state.setPadding(0, 0, dp(8), 0);
+        box.addView(state);
 
         final Switch sw = new Switch(this);
         sw.setChecked(on);
-        if (Build.VERSION.SDK_INT >= 21) {
-            sw.setThumbTintList(android.content.res.ColorStateList.valueOf(cAccent));
-        }
+        SwitchStyle.apply(sw, cAccent, darkMode);
         sw.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(android.widget.CompoundButton b, boolean checked) {
+                state.setText(Lang.onOff(checked));
+                state.setTextColor(checked ? cAccent : cMuted);
                 prefs.edit().putBoolean(key, checked).apply();
                 if (key.equals("dark") && checked != darkMode) {
                     recreate();
@@ -320,6 +363,26 @@ public class SettingsActivity extends Activity {
 
     // ---------------------------------------------------------------- pickers
 
+    private void pickLanguage() {
+        final String[] names = {Lang.t("বাংলা"), Lang.t("ইংরেজি")};
+        final String[] keys = {"bn", "en"};
+        int checked = Lang.isEn() ? 1 : 0;
+        new AlertDialog.Builder(this, dialogTheme())
+                .setTitle(Lang.t("অ্যাপের ভাষা"))
+                .setSingleChoiceItems(names, checked, (d, which) -> {
+                    prefs.edit().putString("lang", keys[which]).apply();
+                    Lang.init(prefs);
+                    d.dismiss();
+                    recreate();
+                })
+                .show();
+    }
+
+    private int dialogTheme() {
+        return darkMode ? android.R.style.Theme_Material_Dialog_Alert
+                : android.R.style.Theme_Material_Light_Dialog_Alert;
+    }
+
     private String engineName() {
         String e = prefs.getString("engine", "google");
         if (e.equals("ddg")) return "DuckDuckGo";
@@ -334,9 +397,8 @@ public class SettingsActivity extends Activity {
         String e = prefs.getString("engine", "google");
         for (int i = 0; i < keys.length; i++) if (keys[i].equals(e)) checked = i;
 
-        new AlertDialog.Builder(this, darkMode ? android.R.style.Theme_Material_Dialog_Alert
-                : android.R.style.Theme_Material_Light_Dialog_Alert)
-                .setTitle("সার্চ ইঞ্জিন")
+        new AlertDialog.Builder(this, dialogTheme())
+                .setTitle(Lang.t("সার্চ ইঞ্জিন"))
                 .setSingleChoiceItems(names, checked, (d, which) -> {
                     prefs.edit().putString("engine", keys[which]).apply();
                     d.dismiss();
@@ -351,15 +413,14 @@ public class SettingsActivity extends Activity {
     }
 
     private void pickZoom() {
-        final String[] names = {"ছোট (৮৫%)", "স্বাভাবিক (১০০%)", "বড় (১১৫%)", "আরও বড় (১৩০%)"};
+        final String[] names = {Lang.t("ছোট (৮৫%)"), Lang.t("স্বাভাবিক (১০০%)"), Lang.t("বড় (১১৫%)"), Lang.t("আরও বড় (১৩০%)")};
         final int[] values = {85, 100, 115, 130};
         int z = prefs.getInt("textzoom", 100);
         int checked = 1;
         for (int i = 0; i < values.length; i++) if (values[i] == z) checked = i;
 
-        new AlertDialog.Builder(this, darkMode ? android.R.style.Theme_Material_Dialog_Alert
-                : android.R.style.Theme_Material_Light_Dialog_Alert)
-                .setTitle("লেখার আকার")
+        new AlertDialog.Builder(this, dialogTheme())
+                .setTitle(Lang.t("লেখার আকার"))
                 .setSingleChoiceItems(names, checked, (d, which) -> {
                     prefs.edit().putInt("textzoom", values[which]).apply();
                     d.dismiss();
@@ -392,20 +453,19 @@ public class SettingsActivity extends Activity {
 
     private String themeName() {
         String t = themeKey();
-        if (T_FORCE.equals(t)) return "জোর করে কালো";
-        if (T_DARK.equals(t)) return "রাতের মোড";
-        return "সিস্টেম সেটিং";
+        if (T_FORCE.equals(t)) return Lang.t("জোর করে কালো");
+        if (T_DARK.equals(t)) return Lang.t("রাতের মোড");
+        return Lang.t("সিস্টেম সেটিং");
     }
 
     private void pickTheme() {
-        final String[] names = {"সিস্টেম সেটিং অনুযায়ী", "রাতের মোড", "জোর করে কালো"};
+        final String[] names = {Lang.t("সিস্টেম সেটিং অনুযায়ী"), Lang.t("রাতের মোড"), Lang.t("জোর করে কালো")};
         final String[] keys = {T_SYSTEM, T_DARK, T_FORCE};
         int checked = 0;
         String cur = themeKey();
         for (int i = 0; i < keys.length; i++) if (keys[i].equals(cur)) checked = i;
-        new AlertDialog.Builder(this, darkMode ? android.R.style.Theme_Material_Dialog_Alert
-                : android.R.style.Theme_Material_Light_Dialog_Alert)
-                .setTitle("থিম")
+        new AlertDialog.Builder(this, dialogTheme())
+                .setTitle(Lang.t("থিম"))
                 .setSingleChoiceItems(names, checked, (d, which) -> {
                     prefs.edit().putString("theme", keys[which]).apply();
                     d.dismiss();
@@ -421,50 +481,47 @@ public class SettingsActivity extends Activity {
     // ---------------------------------------------------------------- data
 
     private void clearData(final String key, String label) {
-        new AlertDialog.Builder(this, darkMode ? android.R.style.Theme_Material_Dialog_Alert
-                : android.R.style.Theme_Material_Light_Dialog_Alert)
-                .setTitle(label + " মুছবেন?")
-                .setMessage("এটা ফিরিয়ে আনা যাবে না।")
-                .setPositiveButton("মুছুন", (d, w) -> {
+        new AlertDialog.Builder(this, dialogTheme())
+                .setTitle(Lang.deleteTitle(label))
+                .setMessage(Lang.t("এটা ফিরিয়ে আনা যাবে না।"))
+                .setPositiveButton(Lang.t("মুছুন"), (d, w) -> {
                     prefs.edit().putString(key, "[]").apply();
-                    toast(label + " মোছা হয়েছে");
+                    toast(Lang.deleted(label));
                     refresh();
                 })
-                .setNegativeButton("না", null)
+                .setNegativeButton(Lang.t("না"), null)
                 .show();
     }
 
     private void clearCookies() {
-        new AlertDialog.Builder(this, darkMode ? android.R.style.Theme_Material_Dialog_Alert
-                : android.R.style.Theme_Material_Light_Dialog_Alert)
-                .setTitle("কুকি ও ক্যাশে মুছবেন?")
-                .setMessage("সব সাইট থেকে লগআউট হয়ে যাবে।")
-                .setPositiveButton("মুছুন", (d, w) -> {
+        new AlertDialog.Builder(this, dialogTheme())
+                .setTitle(Lang.t("কুকি ও ক্যাশে মুছবেন?"))
+                .setMessage(Lang.t("সব সাইট থেকে লগআউট হয়ে যাবে।"))
+                .setPositiveButton(Lang.t("মুছুন"), (d, w) -> {
                     android.webkit.CookieManager cm = android.webkit.CookieManager.getInstance();
                     cm.removeAllCookies(null);
                     cm.flush();
                     android.webkit.WebStorage.getInstance().deleteAllData();
-                    toast("কুকি ও ক্যাশে মোছা হয়েছে");
+                    toast(Lang.t("কুকি ও ক্যাশে মোছা হয়েছে"));
                 })
-                .setNegativeButton("না", null)
+                .setNegativeButton(Lang.t("না"), null)
                 .show();
     }
 
     private void clearAll() {
-        new AlertDialog.Builder(this, darkMode ? android.R.style.Theme_Material_Dialog_Alert
-                : android.R.style.Theme_Material_Light_Dialog_Alert)
-                .setTitle("সব ডেটা মুছবেন?")
-                .setMessage("ইতিহাস, বুকমার্ক, কুকি আর ক্যাশে সব মুছে যাবে। সেটিংস আগের মতো থাকবে।")
-                .setPositiveButton("সব মুছুন", (d, w) -> {
+        new AlertDialog.Builder(this, dialogTheme())
+                .setTitle(Lang.t("সব ডেটা মুছবেন?"))
+                .setMessage(Lang.t("ইতিহাস, বুকমার্ক, কুকি আর ক্যাশে সব মুছে যাবে। সেটিংস আগের মতো থাকবে।"))
+                .setPositiveButton(Lang.t("সব মুছুন"), (d, w) -> {
                     prefs.edit().putString("history", "[]").putString("bookmarks", "[]").apply();
                     android.webkit.CookieManager cm = android.webkit.CookieManager.getInstance();
                     cm.removeAllCookies(null);
                     cm.flush();
                     android.webkit.WebStorage.getInstance().deleteAllData();
-                    toast("সব ডেটা মোছা হয়েছে");
+                    toast(Lang.t("সব ডেটা মোছা হয়েছে"));
                     refresh();
                 })
-                .setNegativeButton("না", null)
+                .setNegativeButton(Lang.t("না"), null)
                 .show();
     }
 
@@ -472,7 +529,7 @@ public class SettingsActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
         if (requestCode == REQ_ROLE) {
             toast(BrowserRole.isDefault(this)
-                    ? "ডিফল্ট ব্রাউজার সেট হয়েছে" : "ডিফল্ট ব্রাউজার সেট হয়নি");
+                    ? Lang.t("ডিফল্ট ব্রাউজার সেট হয়েছে") : Lang.t("ডিফল্ট ব্রাউজার সেট হয়নি"));
             refresh();
             return;
         }

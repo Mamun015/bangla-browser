@@ -41,7 +41,7 @@ final class Downloader {
         long done;
         long speed;
         volatile boolean stop;
-        String phase = "সংযোগ হচ্ছে…";
+        String phase = Lang.t("সংযোগ হচ্ছে…");
 
         Task(String name, String mime) {
             this.name = name;
@@ -85,12 +85,13 @@ final class Downloader {
 
     static void start(final MainActivity act, final String url, final String ua,
                       final String contentDisposition, final String mime, final long len) {
+        Lang.init(act.getSharedPreferences("bangla_browser", 0));
         if (Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT < 29
                 && act.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             act.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     REQ_STORAGE);
-            Toast.makeText(act, "ফাইল রাখতে স্টোরেজের অনুমতি দাও, তারপর আবার চাপো",
+            Toast.makeText(act, Lang.t("ফাইল রাখতে স্টোরেজের অনুমতি দাও, তারপর আবার চাপো"),
                     Toast.LENGTH_LONG).show();
             return;
         }
@@ -98,7 +99,7 @@ final class Downloader {
         final Task task = new Task(fileName(url, contentDisposition, mime), mime);
         task.total = len > 0 ? len : 0;
         ACTIVE.add(task);
-        Toast.makeText(act, "ডাউনলোড শুরু হয়েছে: " + task.name, Toast.LENGTH_SHORT).show();
+        Toast.makeText(act, Lang.t("ডাউনলোড শুরু হয়েছে: ") + task.name, Toast.LENGTH_SHORT).show();
 
         new Thread(new Runnable() {
             public void run() {
@@ -132,7 +133,7 @@ final class Downloader {
 
             int code = cn.getResponseCode();
             if (code < 200 || code >= 400) {
-                fail = "সার্ভার ফাইলটা দিচ্ছে না (" + code + ")";
+                fail = Lang.t("সার্ভার ফাইলটা দিচ্ছে না (") + code + ")";
             }
 
             String cl = cn.getHeaderField("Content-Length");
@@ -154,7 +155,7 @@ final class Downloader {
                     ContentResolver cr = act.getContentResolver();
                     publicUri = cr.insert(Uri.parse("content://media/external/downloads"), cv);
                     if (publicUri == null) {
-                        fail = "ফোনে ফাইল রাখার জায়গা পাওয়া যায়নি";
+                        fail = Lang.t("ফোনে ফাইল রাখার জায়গা পাওয়া যায়নি");
                     }
                 } else {
                     File dir = Environment.getExternalStoragePublicDirectory(
@@ -176,14 +177,14 @@ final class Downloader {
                             ? act.getContentResolver().openOutputStream(publicUri)
                             : new FileOutputStream(file);
                     if (out == null) {
-                        fail = "ফাইল লেখা যাচ্ছে না";
+                        fail = Lang.t("ফাইল লেখা যাচ্ছে না");
                     } else {
                         in = cn.getInputStream();
                         byte[] buf = new byte[16384];
                         long lastTime = System.currentTimeMillis();
                         long lastBytes = 0;
                         int read;
-                        task.phase = "চলছে";
+                        task.phase = Lang.t("চলছে");
                         while (!task.stop && (read = in.read(buf)) > 0) {
                             out.write(buf, 0, read);
                             task.done += read;
@@ -203,7 +204,7 @@ final class Downloader {
                 }
             }
         } catch (Exception e) {
-            fail = "নেটওয়ার্ক সমস্যা, ফাইলটা নামানো যায়নি";
+            fail = Lang.t("নেটওয়ার্ক সমস্যা, ফাইলটা নামানো যায়নি");
         } finally {
             try { if (cn != null) cn.disconnect(); } catch (Exception ignored) { }
         }
@@ -211,7 +212,7 @@ final class Downloader {
         if (task.stop) {
             ACTIVE.remove(task);
             deleteTarget(act, publicUri, file);
-            toast(act, "ডাউনলোড বাতিল হয়েছে");
+            toast(act, Lang.t("ডাউনলোড বাতিল হয়েছে"));
             return;
         }
 
@@ -235,7 +236,7 @@ final class Downloader {
         act.addDownloadRecord(task.name, record == null ? "" : record.toString(),
                 task.mime, task.done);
         ACTIVE.remove(task);
-        toast(act, "ডাউনলোড সম্পন্ন: " + task.name + " · " + sizeText(task.done));
+        toast(act, Lang.t("ডাউনলোড সম্পন্ন: ") + task.name + " · " + sizeText(task.done));
     }
 
     private static void toast(final MainActivity act, final String msg) {
