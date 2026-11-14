@@ -55,7 +55,7 @@ public class MainActivity extends Activity {
 
     private static final String HOME_URL = "file:///android_asset/home.html";
     private static final String PREFS = "bangla_browser";
-    private static final String VERSION = "2.0";
+    private static final String VERSION = "2.0.1";
     private boolean autoTranslate = true;
     private final java.util.HashMap<String, String> assetCache = new java.util.HashMap<String, String>();
     private static final String UA_DESKTOP =
@@ -70,6 +70,9 @@ public class MainActivity extends Activity {
     private boolean pageLoading;
     private TextView pageTitle, tabBadge, navTabLabel;
     private LinearLayout rootView, bottomBar, navBar, suggestBox;
+    private ScrollView suggestScroll;
+    private final java.util.HashSet<String> sslAllowedHosts = new java.util.HashSet<String>();
+    private String sslDialogHost;
     private final android.os.Handler suggestHandler =
             new android.os.Handler(android.os.Looper.getMainLooper());
     private Runnable suggestPending;
@@ -102,6 +105,7 @@ public class MainActivity extends Activity {
         String title = "";
         String url = "";
         String lastGood = "";
+        boolean loading;
     }
 
     // ---------------------------------------------------------------- lifecycle
@@ -289,6 +293,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (suggestHandler != null) suggestHandler.removeCallbacksAndMessages(null);
         exitFullscreen();
         for (Tab t : tabs) {
             if (t.web != null) {
@@ -569,14 +574,21 @@ public class MainActivity extends Activity {
         suggestBox = new LinearLayout(this);
         suggestBox.setOrientation(LinearLayout.VERTICAL);
         suggestBox.setBackground(roundedBorder(cSurface, 16));
-        suggestBox.setVisibility(View.GONE);
+
+        // কীবোর্ডের সাথে তালিকা স্ক্রিনের বাইরে চলে যাবে না — বেশি সারি হলে ভেতরে স্ক্রল
+        suggestScroll = new ScrollView(this);
+        suggestScroll.setVerticalScrollBarEnabled(false);
+        suggestScroll.setFillViewport(false);
+        suggestScroll.addView(suggestBox, new ScrollView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        suggestScroll.setVisibility(View.GONE);
         LinearLayout.LayoutParams suggestLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         suggestLp.leftMargin = dp(12);
         suggestLp.rightMargin = dp(12);
         suggestLp.topMargin = dp(2);
         suggestLp.bottomMargin = dp(6);
-        rootView.addView(suggestBox, suggestLp);
+        rootView.addView(suggestScroll, suggestLp);
 
         progress = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         progress.setMax(100);
@@ -777,6 +789,9 @@ public class MainActivity extends Activity {
             urlBar.setText(prettyUrl(t.url));
             pageTitle.setText(t.title);
         }
+        // এই ট্যাব নিজে লোড করছে কি না, সেটাই আইকনে দেখাবে
+        setReloadState(t.web != null && t.loading);
+        progress.setVisibility(t.web != null && t.loading ? View.VISIBLE : View.GONE);
         updateNavButtons();
     }
 
@@ -799,6 +814,7 @@ public class MainActivity extends Activity {
     }
 
     private void showTabSwitcher() {
+        hideSuggestions();
         final FrameLayout box = new FrameLayout(this);
         box.setBackgroundColor(darkMode ? 0xF7080B0A : 0xF7FFFFFF);
 
@@ -988,6 +1004,7 @@ public class MainActivity extends Activity {
     // ---------------------------------------------------------------- modern menu sheet
 
     private void showMenu() {
+        hideSuggestions();
         final FrameLayout box = new FrameLayout(this);
         box.setBackgroundColor(0x8A000000);
         box.setOnClickListener(new View.OnClickListener() {
@@ -1739,7 +1756,7 @@ public class MainActivity extends Activity {
         String t = title == null ? "" : title.replace('\n', ' ').replace('\r', ' ')
                 .replaceAll("\\s+", " ").trim();
         if (t.length() == 0 || t.startsWith("http://") || t.startsWith("https://")
-                || t.equals("about:blank")) {
+                || t.startsWith("data:") || t.startsWith("file:") || t.equals("about:blank")) {
             String h = Favicon.hostOf(url);
             return h.length() == 0 ? prettyUrl(url) : h;
         }
@@ -2269,6 +2286,7 @@ public class MainActivity extends Activity {
     // ---------------------------------------------------------------- overlays
 
     private void openOverlay(View v) {
+        hideSuggestions();
         closeOverlay();
         overlay = v;
         screen.addView(v, new FrameLayout.LayoutParams(
@@ -2331,9 +2349,15 @@ public class MainActivity extends Activity {
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap fav) {
                 Tab t = tabOf(view);
-                if (t != null) t.url = url;
-                progress.setVisibility(View.VISIBLE);
-                if (view == current) setReloadState(true);
+                if (t != null) {
+                    t.url = url;
+                    t.title = "";       // পুরোনো পেজের নাম নতুন ঠিকানায় জমা হবে না
+                    t.loading = true;
+                }
+                if (view == current) {
+                    progress.setVisibility(View.VISIBLE);
+                    setReloadState(true);
+                }
                 if (url != null && url.startsWith(HOME_URL)) {
                     urlBar.setText("");
                     pageTitle.setText("");
@@ -2347,10 +2371,11 @@ public class MainActivity extends Activity {
                 Tab t = tabOf(view);
                 if (t != null) {
                     t.url = url;
+                    t.loading = false;
                     if (t.title.length() == 0) t.title = prettyUrl(url);
                 }
-                progress.setVisibility(View.GONE);
                 if (view == current) {
+                    progress.setVisibility(View.GONE);
                     setReloadState(false);
                     updateNavButtons();
                 }
@@ -2399,20 +2424,37 @@ public class MainActivity extends Activity {
                 setReloadState(false);
                 String errUrl = error == null ? null : error.getUrl();
                 String pageUrl = view.getUrl();
-                String errHost = errUrl == null ? "" : String.valueOf(Uri.parse(errUrl).getHost());
+                final String errHost = errUrl == null ? "" : String.valueOf(Uri.parse(errUrl).getHost());
                 String pageHost = pageUrl == null ? "" : String.valueOf(Uri.parse(pageUrl).getHost());
+                // একই সাইটে আগে "তবুও খুলুন" দেওয়া হলে আর জিজ্ঞাসা নয়
+                if (sslAllowedHosts.contains(errHost)) {
+                    handler.proceed();
+                    return;
+                }
                 // শুধু মূল পেজের সার্টিফিকেট সমস্যাতেই জিজ্ঞাসা, বিজ্ঞাপন/ছবির জন্য নয়
-                if (view != current || !errHost.equalsIgnoreCase(pageHost)) {
+                if (view != current || !errHost.equalsIgnoreCase(pageHost)
+                        || errHost.equals(sslDialogHost)) {
                     handler.cancel();
                     return;
                 }
+                sslDialogHost = errHost;
                 dialog()
                         .setTitle(Lang.t("সার্টিফিকেট সমস্যা"))
                         .setMessage(Lang.t("এই সাইটের নিরাপত্তা সার্টিফিকেট ঠিক নেই। "
                                 + "তবুও খুললে তথ্য ঝুঁকিতে থাকতে পারে।"))
-                        .setPositiveButton(Lang.t("তবুও খুলুন"), (d, w) -> handler.proceed())
-                        .setNegativeButton(Lang.t("বাতিল"), (d, w) -> handler.cancel())
-                        .setOnCancelListener(d -> handler.cancel())
+                        .setPositiveButton(Lang.t("তবুও খুলুন"), (d, w) -> {
+                            sslAllowedHosts.add(errHost);
+                            sslDialogHost = null;
+                            handler.proceed();
+                        })
+                        .setNegativeButton(Lang.t("বাতিল"), (d, w) -> {
+                            sslDialogHost = null;
+                            handler.cancel();
+                        })
+                        .setOnCancelListener(d -> {
+                            sslDialogHost = null;
+                            handler.cancel();
+                        })
                         .show();
             }
         });
@@ -2675,6 +2717,7 @@ public class MainActivity extends Activity {
         if (url == null || !url.startsWith("https://") || view != current) return false;
         String plain = "http://" + url.substring(8);
         if (!httpTried.add(plain)) return false;
+        if (httpTried.size() > 100) httpTried.clear();
         progress.setVisibility(View.VISIBLE);
         view.loadUrl(plain);
         return true;
@@ -2735,7 +2778,19 @@ public class MainActivity extends Activity {
         suggestRemoteQuery = "";
         suggestRemote = new ArrayList<String>();
         suggestBox.removeAllViews();
+        if (suggestScroll != null) suggestScroll.setVisibility(View.GONE);
         suggestBox.setVisibility(View.GONE);
+    }
+
+    /** তালিকা দেখায়, উচ্চতা স্ক্রিনে ধরে এমন মাপে সীমিত রাখে */
+    private void showSuggestPanel(int rows) {
+        int h = Math.min(dp(300), rows * dp(56) + dp(2));
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) suggestScroll.getLayoutParams();
+        lp.height = h;
+        suggestScroll.setLayoutParams(lp);
+        suggestScroll.scrollTo(0, 0);
+        suggestScroll.setVisibility(View.VISIBLE);
+        suggestBox.setVisibility(View.VISIBLE);
     }
 
     /** লেখার সময় নিচে সাজেশন: ঠিকানা, সার্চ, গুগলের সাজেশন, আর আগে দেখা সাইট */
@@ -2846,11 +2901,12 @@ public class MainActivity extends Activity {
                 recent++;
             }
             if (recent == 0) {
+                suggestScroll.setVisibility(View.GONE);
                 suggestBox.setVisibility(View.GONE);
                 return;
             }
             trimLastDivider();
-            suggestBox.setVisibility(View.VISIBLE);
+            showSuggestPanel(recent);
             return;
         }
 
@@ -2896,11 +2952,12 @@ public class MainActivity extends Activity {
         }
 
         if (rows == 0) {
+            suggestScroll.setVisibility(View.GONE);
             suggestBox.setVisibility(View.GONE);
             return;
         }
         trimLastDivider();
-        suggestBox.setVisibility(View.VISIBLE);
+        showSuggestPanel(rows);
     }
 
     /** শেষ সারির নিচে বাড়তি রেখা থাকবে না */
