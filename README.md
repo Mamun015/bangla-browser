@@ -24,6 +24,10 @@ WebView based. No ads. No tracking. About 175 KB.
 
 বাংলা ভাষার জন্য বানানো একটি ছোট আর দ্রুত অ্যান্ড্রয়েড ব্রাউজার। পুরো ইন্টারফেস বাংলায়, বিজ্ঞাপন নেই, ট্র্যাকিং নেই। ট্যাব, বুকমার্ক, ইতিহাস, রাতের মোড — দৈনন্দিন ব্রাউজিংয়ের যা দরকার, সব একসাথে।
 
+**English:** Bangla Browser (বাংলা ব্রাউজার) is a free, open source Bengali browser for Android. It translates any English page into Bengali automatically, suggests searches in the address bar, and blocks ad and popup hijacks. WebView based, about 175 KB, MPL-2.0.
+
+Website: **https://mamun015.github.io/bangla-browser/** · Latest APK: [Releases](https://github.com/Mamun015/bangla-browser/releases/latest)
+
 ## যা এই ব্রাউজারটাকে আলাদা করে
 
 | | |
