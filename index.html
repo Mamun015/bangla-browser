@@ -12,11 +12,15 @@
 <meta name="googlebot" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#006a4e">
 <link rel="canonical" href="https://mamun015.github.io/bangla-browser/">
-<link rel="icon" href="icon.png" type="image/png">
-<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<meta name="application-name" content="বাংলা ব্রাউজার">
+<meta name="apple-mobile-web-app-title" content="বাংলা ব্রাউজার">
 
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Bangla Browser">
+<meta property="og:site_name" content="বাংলা ব্রাউজার · Bangla Browser">
 <meta property="og:title" content="বাংলা ব্রাউজার — Bangla Browser for Android">
 <meta property="og:description" content="A free, light Android browser with a full Bengali interface — every English page turns into Bengali by itself, and the address bar suggests what you are about to type. No ads, no tracking. 175 KB APK.">
 <meta property="og:url" content="https://mamun015.github.io/bangla-browser/">
@@ -29,6 +33,37 @@
 <meta name="twitter:description" content="A free Android browser with a full Bengali interface that turns every English page into Bengali automatically, with address-bar search suggestions. No ads, no tracking.">
 <meta name="twitter:image" content="https://mamun015.github.io/bangla-browser/screenshot.png">
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://mamun015.github.io/bangla-browser/#website",
+  "name": "বাংলা ব্রাউজার",
+  "alternateName": ["Bangla Browser", "Bangla Browser for Android", "বাংলা ব্রাউজার — অ্যান্ড্রয়েড ব্রাউজার"],
+  "url": "https://mamun015.github.io/bangla-browser/",
+  "inLanguage": "bn",
+  "publisher": { "@id": "https://mamun015.github.io/bangla-browser/#org" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://mamun015.github.io/bangla-browser/#org",
+  "name": "বাংলা ব্রাউজার",
+  "alternateName": "Bangla Browser",
+  "url": "https://mamun015.github.io/bangla-browser/",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://mamun015.github.io/bangla-browser/icon-512.png",
+    "width": 512,
+    "height": 512
+  },
+  "sameAs": [
+    "https://github.com/Mamun015/bangla-browser"
+  ]
+}
+</script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -49,6 +84,8 @@
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BDT" },
   "author": { "@type": "Person", "name": "Mamun", "alternateName": "Mamun015", "url": "https://github.com/Mamun015" },
   "screenshot": "https://mamun015.github.io/bangla-browser/screenshot.png",
+  "image": "https://mamun015.github.io/bangla-browser/icon-512.png",
+  "publisher": { "@id": "https://mamun015.github.io/bangla-browser/#org" },
   "featureList": [
     "Full Bengali interface",
     "Search suggestions in the address bar (Google, visited sites, bookmarks)",
@@ -263,6 +300,7 @@
     <a class="link hide-sm" href="#suggest">সাজেশন</a>
     <a class="link hide-sm" href="#translate">অনুবাদ</a>
     <a class="link hide-sm" href="#features">ফিচার</a>
+    <a class="link hide-sm" href="#source">সোর্স</a>
     <a class="link hide-sm" href="#install">ইনস্টল</a>
     <a class="link hide-sm" href="#faq">প্রশ্ন</a>
     <a class="link" href="https://github.com/Mamun015/bangla-browser">GitHub</a>
@@ -360,7 +398,19 @@
     </div>
   </section>
 
-  <section id="install">
+  <section id="source">
+    <div class="wrap">
+      <h2>GitHub-এ ওপেন সোর্স</h2>
+      <p class="sub">কোডটা কারো পেছনে লুকানো নেই। পুরো সোর্স, প্রতিটা কমিট আর প্রতিটা রিলিজ GitHub-এ MPL-2.0 লাইসেন্সে খোলা। কেউ কোড পড়তে, নিজে বিল্ড করতে বা বদলাতে পারে — বদলানো ফাইলও একই লাইসেন্সে খোলা রাখতে হবে।</p>
+      <div class="features">
+        <div class="feature"><span class="ico">🐙</span><h3>রিপোজিটরি</h3><p><a href="https://github.com/Mamun015/bangla-browser">github.com/Mamun015/bangla-browser</a><br>সোর্স কোড, ইস্যু ট্র্যাকার, বিল্ড স্ক্রিপ্ট — সব এক জায়গায়।</p></div>
+        <div class="feature"><span class="ico">📦</span><h3>রিলিজ</h3><p><a href="https://github.com/Mamun015/bangla-browser/releases">সব ভার্সনের APK</a><br>প্রতিটা রিলিজে ফাইল আর কী বদলাল তার নোট।</p></div>
+        <div class="feature"><span class="ico">📄</span><h3>লাইসেন্স</h3><p><a href="https://github.com/Mamun015/bangla-browser/blob/main/LICENSE">MPL-2.0</a><br>কোড খোলা, তবে অ্যাপের নাম ও আইকন আলাদা — কেউ নিজের নামে চালাতে পারবে না।</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt" id="install">
     <div class="wrap">
       <h2>ইনস্টল করবেন যেভাবে</h2>
       <p class="sub">Play Store লাগবে না। ফোনে সরাসরি APK ইনস্টল করা যায়।</p>
@@ -385,7 +435,7 @@
     </div>
   </section>
 
-  <section class="alt" id="faq">
+  <section id="faq">
     <div class="wrap">
       <h2>সাধারণ প্রশ্ন</h2>
       <p class="sub">ইনস্টল আর ব্যবহার নিয়ে যা সবচেয়ে বেশি জিজ্ঞাসা করা হয়।</p>
