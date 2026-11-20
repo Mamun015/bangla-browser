@@ -88,7 +88,7 @@ Requirements:
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 bash build.sh
 ```
 
-Output: `BanglaBrowser-2.0.1.apk`. See [BUILD.md](BUILD.md) for details. The signing key (`keystore.jks`) is not in the repository; generate your own to build a fork.
+Output: `BanglaBrowser-2.0.1.apk`. See [BUILD.md](BUILD.md) for details. The signing keys are kept outside the repository; build with `UNSIGNED=1` for a fork.
 
 ## FAQ
 

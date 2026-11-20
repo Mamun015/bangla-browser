@@ -37,14 +37,11 @@ cp "$OUT/base.apk" "$OUT/unsigned.apk"
 zipalign -f -p 4 "$OUT/unsigned.apk" "$OUT/aligned.apk"
 
 echo "==> 5/6 sign"
-if [ ! -f keystore.jks ]; then
-  keytool -genkeypair -v -keystore keystore.jks -storepass bangla123 \
-    -keypass bangla123 -alias bangla -keyalg RSA -keysize 2048 -validity 10000 \
-    -dname "CN=Bangla Browser, O=Mobile, C=BD" > /dev/null 2>&1
+if [ "${UNSIGNED:-0}" = "1" ]; then
+  echo "unsigned build: $OUT/aligned.apk"
+  exit 0
 fi
-apksigner sign --ks keystore.jks --ks-pass pass:bangla123 --key-pass pass:bangla123 \
-  --v1-signing-enabled true --v2-signing-enabled true \
-  --out "$NAME" "$OUT/aligned.apk"
+bash sign.sh "$OUT/aligned.apk" "$NAME"
 
 echo "==> 6/6 verify"
 apksigner verify --print-certs "$NAME" | head -5

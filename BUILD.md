@@ -25,9 +25,22 @@ curl -o sdk/r8.jar https://maven.google.com/com/android/tools/r8/8.3.37/r8-8.3.3
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64 bash build.sh
 ```
 
-Output: `BanglaBrowser-1.1.03.apk`.
+Output: `BanglaBrowser-2.0.1.apk`.
 
-`build.sh` creates `keystore.jks` on the first run. Keep that file. Every future version must be signed with the same key, otherwise Android refuses to install the update over the old app.
+## Signing
+
+Release APKs are signed by `sign.sh` with a two-key chain kept outside the
+repository: the previous key (v1/v2 signatures, Android 5–8), the current key
+(v3 signature, Android 9+) and the lineage that links them. Both keys are
+required on every build.
+
+Point `SKYBLE_SIGNING_DIR` at the directory that holds the chain (default
+`$HOME/Keystores/skyble`). Passwords and aliases come from `keystore.properties`
+and `skyble-release.properties` there, or from the matching `SKYBLE_*`
+environment variables.
+
+Build with `UNSIGNED=1` when the chain is not available. Never publish an APK
+signed outside the chain: existing installs reject a different signature.
 
 ## Layout
 
